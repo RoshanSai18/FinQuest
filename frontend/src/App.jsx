@@ -19,6 +19,8 @@ import {
   Linkedin,
   Github,
   Mail,
+  Layers,
+  Zap,
 } from 'lucide-react';
 import './App.css';
 import {
@@ -36,9 +38,13 @@ import {
   Section,
 } from './components/UIComponents';
 import FinancialCalculator from './components/FinancialCalculator';
+import FinancialCalculatorModal from './components/FinancialCalculatorModal';
 import LoadingScreen from './components/LoadingScreen';
+import CursorTrail from './components/CursorTrail';
 import IconCloud from './components/magicui/icon-cloud';
 import Globe from './Globe';
+import { TiltCard } from './components/ui/tilt-card';
+import { TubeLightNavBar } from './components/ui/tubelight-navbar';
 import { triggerConfetti, smoothScrollTo } from './lib/utils';
 
 function App() {
@@ -47,6 +53,8 @@ function App() {
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
   const [isLoading, setIsLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
+  const [isCalculatorModalOpen, setIsCalculatorModalOpen] = useState(false);
+  const [activeNavItem, setActiveNavItem] = useState('features');
 
   // Handle scroll for navbar background
   useEffect(() => {
@@ -76,10 +84,9 @@ function App() {
   };
 
   const navLinks = [
-    { label: 'Features', href: '#features' },
-    { label: 'How It Works', href: '#how-it-works' },
-    { label: 'Calculator', href: '#calculator' },
-    { label: 'Integrations', href: '#integrations' },
+    { name: 'Features', label: 'Features', href: '#features', icon: Sparkles },
+    { name: 'How It Works', label: 'How It Works', href: '#how-it-works', icon: Zap },
+    { name: 'Integrations', label: 'Integrations', href: '#integrations', icon: Layers },
   ];
 
   return (
@@ -105,46 +112,41 @@ function App() {
                 {/* Logo */}
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-2 cursor-pointer"
+                  className="flex items-center gap-3 cursor-pointer"
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 >
-                  <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-dark" />
+                  <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-primary/80 to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30">
+                    <Sparkles className="w-6 h-6 text-dark" />
+                    <div className="absolute inset-0 rounded-xl bg-primary/20 blur-lg"></div>
                   </div>
-                  <span className="text-xl font-bold">
+                  <span className="text-2xl font-bold tracking-tight">
                     <GradientText>FinQuest</GradientText>
                   </span>
                 </motion.div>
 
-                {/* Desktop Navigation */}
-                <div className="hidden md:flex items-center gap-8">
-                  {navLinks.map((link) => (
-                    <a
-                      key={link.label}
-                      href={link.href}
-                      className="nav-link text-gray-300 hover:text-white transition-colors"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        smoothScrollTo(link.href.slice(1));
-                      }}
-                    >
-                      {link.label}
-                    </a>
-                  ))}
-                </div>
-
-                {/* Actions */}
-                <div className="hidden md:flex items-center gap-4">
+                {/* Desktop Navigation - Combined Nav Items and Actions */}
+                <div className="hidden md:flex items-center gap-6">
+                  <TubeLightNavBar
+                    items={navLinks}
+                    activeItem={activeNavItem}
+                    onItemClick={(item) => {
+                      setActiveNavItem(item.name.toLowerCase().replace(/ /g, '-'));
+                      smoothScrollTo(item.href.slice(1));
+                    }}
+                  />
+                  
                   <ThemeToggle />
+                  
                   <button
                     onClick={() => {
                       setAuthMode('login');
                       setIsAuthModalOpen(true);
                     }}
-                    className="text-gray-300 hover:text-white transition-colors"
+                    className="text-gray-300 hover:text-white transition-colors font-medium px-4"
                   >
                     Log in
                   </button>
+                  
                   <GradientButton
                     onClick={() => {
                       setAuthMode('signup');
@@ -229,24 +231,52 @@ function App() {
                 {/* Left Content */}
                 <Reveal>
                   <div className="text-center lg:text-left">
-                    <Badge pulse className="mb-6">
-                      <Sparkles className="w-4 h-4 inline mr-2" />
-                      AI-Powered Financial Planning
-                    </Badge>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <Badge pulse className="mb-6">
+                        <Sparkles className="w-4 h-4 inline mr-2" />
+                        AI-Powered Financial Planning
+                      </Badge>
+                    </motion.div>
 
-                    <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                    <motion.h1 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.2 }}
+                      className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
+                    >
                       Master your money,{' '}
                       <TextHighlight>
-                        <span className="gradient-text">stress-free</span>
+                        <motion.span 
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.8, delay: 0.5 }}
+                          className="gradient-text"
+                        >
+                          stress-free
+                        </motion.span>
                       </TextHighlight>
-                    </h1>
+                    </motion.h1>
 
-                    <p className="text-xl text-gray-400 mb-8 max-w-2xl">
+                    <motion.p 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.4 }}
+                      className="text-xl text-gray-400 mb-8 max-w-2xl"
+                    >
                       Run thousands of financial scenarios, get AI-powered insights, and make
                       confident decisions before life's biggest moments
-                    </p>
+                    </motion.p>
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.6 }}
+                      className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+                    >
                       <ShineBorderButton
                         onClick={() => {
                           setAuthMode('signup');
@@ -258,11 +288,15 @@ function App() {
                         <ArrowRight className="w-5 h-5 ml-2 inline" />
                       </ShineBorderButton>
 
-                      <GradientButton variant="outline" className="text-lg px-8 py-4">
+                      <GradientButton 
+                        variant="outline" 
+                        className="text-lg px-8 py-4"
+                        onClick={() => setIsCalculatorModalOpen(true)}
+                      >
                         <Play className="w-5 h-5 mr-2 inline" />
-                        Watch Demo
+                        Test Demo
                       </GradientButton>
-                    </div>
+                    </motion.div>
 
                     <p className="text-sm text-gray-500 mt-6">
                       No credit card required • 14-day free trial • Cancel anytime
@@ -338,29 +372,6 @@ function App() {
           </section>
 
           {/* ============================================================================ */}
-          {/* STATS SECTION */}
-          {/* ============================================================================ */}
-          <Section className="bg-dark-100">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {[
-                { value: 50000, suffix: '+', label: 'Active Users' },
-                { value: 2, suffix: ' Crore+', label: 'Simulations Run' },
-                { value: 4.9, suffix: '', label: 'App Rating' },
-                { value: 99, suffix: '%', label: 'Uptime' },
-              ].map((stat, index) => (
-                <Reveal key={index} delay={index * 0.1}>
-                  <div className="text-center">
-                    <h3 className="text-4xl md:text-5xl font-bold text-primary mb-2">
-                      <AnimatedCounter end={stat.value} suffix={stat.suffix} duration={2} />
-                    </h3>
-                    <p className="text-gray-400">{stat.label}</p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </Section>
-
-          {/* ============================================================================ */}
           {/* FEATURES SECTION */}
           {/* ============================================================================ */}
           <Section id="features">
@@ -418,13 +429,13 @@ function App() {
                 const Icon = feature.icon;
                 return (
                   <Reveal key={index} delay={index * 0.1}>
-                    <Card hover className="feature-card p-8 h-full">
+                    <TiltCard className="p-8 h-full" tiltIntensity={8}>
                       <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
                         <Icon className="w-7 h-7 text-primary" />
                       </div>
                       <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
                       <p className="text-gray-400">{feature.description}</p>
-                    </Card>
+                    </TiltCard>
                   </Reveal>
                 );
               })}
@@ -471,21 +482,21 @@ function App() {
                 },
               ].map((item, index) => (
                 <Reveal key={index} delay={index * 0.15}>
-                  <motion.div
-                    whileHover={{ y: -8 }}
-                    className="relative group"
-                  >
+                  <div className="relative">
                     {/* Step Number Badge */}
-                    <div className="absolute -top-4 -left-4 z-10">
-                      <div className="w-12 h-12 rounded-full bg-primary text-dark font-bold text-lg flex items-center justify-center shadow-lg shadow-primary/50">
+                    <div className="absolute -top-4 -left-4 z-20">
+                      <motion.div 
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                        className="w-12 h-12 rounded-full bg-primary text-dark font-bold text-lg flex items-center justify-center shadow-lg shadow-primary/50"
+                      >
                         {item.step}
-                      </div>
+                      </motion.div>
                     </div>
 
-                    {/* Card */}
-                    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-8 h-full backdrop-blur-sm hover:border-primary/50 transition-all duration-300">
+                    {/* Card with Tilt Effect */}
+                    <TiltCard className="p-8 h-full group" tiltIntensity={6}>
                       {/* Icon */}
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center mb-6 text-3xl border border-white/10">
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-6 text-3xl border border-primary/20 group-hover:border-primary/40 transition-colors">
                         {item.icon}
                       </div>
 
@@ -495,22 +506,15 @@ function App() {
 
                       {/* Hover Arrow */}
                       {index < 2 && (
-                        <div className="hidden md:block absolute -right-4 top-1/2 -translate-y-1/2 text-primary/30 group-hover:text-primary transition-colors">
+                        <div className="hidden md:block absolute -right-4 top-1/2 -translate-y-1/2 text-primary/30 group-hover:text-primary transition-colors z-20">
                           <ChevronRight className="w-8 h-8" />
                         </div>
                       )}
-                    </div>
-                  </motion.div>
+                    </TiltCard>
+                  </div>
                 </Reveal>
               ))}
             </div>
-          </Section>
-
-          {/* ============================================================================ */}
-          {/* FINANCIAL CALCULATOR SECTION */}
-          {/* ============================================================================ */}
-          <Section id="calculator">
-            <FinancialCalculator />
           </Section>
 
           {/* ============================================================================ */}
@@ -888,6 +892,15 @@ function App() {
           </AnimatePresence>
         </div>
       )}
+
+      {/* Financial Calculator Modal - Outside loading check */}
+      <FinancialCalculatorModal
+        isOpen={isCalculatorModalOpen}
+        onClose={() => setIsCalculatorModalOpen(false)}
+      />
+
+      {/* Cursor Trail Effect */}
+      <CursorTrail />
     </>
   );
 }
