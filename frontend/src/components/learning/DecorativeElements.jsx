@@ -2,14 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const DecorativeElements = () => {
-  // Tree positions along the road
+  // Tree positions along the road - adjusted to avoid tower labels (especially 4th tower)
   const trees = [
-    { x: 200, y: 550 },
-    { x: 500, y: 520 },
-    { x: 850, y: 540 },
-    { x: 1100, y: 560 },
-    { x: 1400, y: 550 },
-    { x: 1700, y: 570 }
+    { x: 150, y: 550 },
+    { x: 350, y: 520 },
+    { x: 750, y: 540 },
+    { x: 980, y: 560 },
+    { x: 1280, y: 550 },
+    { x: 1520, y: 570 },
+    { x: 1800, y: 555 }
   ];
 
   // Cloud positions

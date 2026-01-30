@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Car = ({ currentModule, modules, isAnimating }) => {
-  const currentModuleData = modules[currentModule];
+const Car = ({ currentLevel, levels, isAnimating }) => {
+  const currentLevelData = levels[currentLevel] || levels[0];
   
-  // Calculate car position based on module position
-  const x = (currentModuleData.position.x / 100) * 2000;
-  const y = (currentModuleData.position.y / 100) * 800;
+  // Calculate car position based on level position (2000 viewBox)
+  const x = (currentLevelData.position.x / 100) * 2000;
+  const y = (currentLevelData.position.y / 100) * 800;
 
   return (
     <g id="car">
@@ -44,9 +44,9 @@ const Car = ({ currentModule, modules, isAnimating }) => {
         }}
         transition={{
           type: "spring",
-          stiffness: 50,
-          damping: 20,
-          duration: 1.8
+          stiffness: 40,
+          damping: 25,
+          duration: 2.5
         }}
       >
         {/* Car Shadow */}

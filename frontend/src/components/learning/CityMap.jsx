@@ -1,26 +1,29 @@
 import React, { useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import RoadPath from './RoadPath';
 import Tower from './Tower';
 import Car from './Car';
 import Background from './Background';
 import DecorativeElements from './DecorativeElements';
 
-const CityMap = ({ modules, currentModule, isAnimating, onModuleClick }) => {
+const CityMap = ({ levels, currentLevel, isAnimating, onLevelClick }) => {
   const containerRef = useRef(null);
 
-  // Pan camera to follow car
+  // Pan camera to follow car and reveal next tower
   useEffect(() => {
     if (containerRef.current && isAnimating) {
-      const module = modules[currentModule];
-      const scrollX = (module.position.x / 100) * window.innerWidth - window.innerWidth / 2;
-      
-      containerRef.current.scrollTo({
-        left: scrollX,
-        behavior: 'smooth'
-      });
+      const level = levels[currentLevel];
+      if (level) {
+        // Scroll to reveal the next tower (more aggressive)
+        const targetX = (level.position.x / 100) * (containerRef.current.scrollWidth || window.innerWidth * 2);
+        const scrollX = targetX - window.innerWidth * 0.4; // Show more of the right side
+        
+        containerRef.current.scrollTo({
+          left: Math.max(0, scrollX),
+          behavior: 'smooth'
+        });
+      }
     }
-  }, [currentModule, isAnimating, modules]);
+  }, [currentLevel, isAnimating, levels]);
 
   return (
     <div
@@ -39,23 +42,23 @@ const CityMap = ({ modules, currentModule, isAnimating, onModuleClick }) => {
           preserveAspectRatio="xMidYMid slice"
         >
           {/* Road Path */}
-          <RoadPath />
+          <RoadPath levels={levels} />
 
-          {/* Towers */}
-          {modules.map((module, index) => (
+          {/* 4 Level Towers */}
+          {levels.map((level, index) => (
             <Tower
-              key={module.id}
-              module={module}
+              key={level.id}
+              level={level}
               index={index}
-              isActive={currentModule === module.id}
-              onClick={() => onModuleClick(module.id)}
+              isActive={currentLevel === level.id}
+              onClick={() => onLevelClick(level.id)}
             />
           ))}
 
           {/* Car */}
           <Car
-            currentModule={currentModule}
-            modules={modules}
+            currentLevel={currentLevel}
+            levels={levels}
             isAnimating={isAnimating}
           />
 

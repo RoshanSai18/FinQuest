@@ -1,64 +1,110 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, SkipForward, Award } from 'lucide-react';
+import { X, SkipForward } from 'lucide-react';
 import CityMap from './CityMap';
 import UIOverlay from './UIOverlay';
 import ChapterTransition from './ChapterTransition';
 
 const LearningWorld = ({ onClose }) => {
-  const [currentModule, setCurrentModule] = useState(0);
+  const [currentLevel, setCurrentLevel] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showChapter, setShowChapter] = useState(false);
-  const [selectedModule, setSelectedModule] = useState(null);
+  const [selectedLevel, setSelectedLevel] = useState(null);
 
-  // Module data
-  const modules = [
+  // 4 Level towers - each level is a tower
+  const levels = useMemo(() => [
     {
       id: 0,
-      title: 'Budget Basics',
-      description: 'Master the fundamentals of budgeting',
-      icon: '💰',
-      completed: true,
+      title: 'MONEY BASICS',
+      shortTitle: 'Money Basics',
+      subtitle: 'Survival Mode',
+      theme: 'Understand → Control → Stabilize',
+      color: '#10b981', // green
+      icon: '🟢',
+      completed: false,
       locked: false,
-      position: { x: 15, y: 50 }
+      position: { x: 20, y: 50 }, // First tower position
+      moduleCount: 5,
+      modules: [
+        'Money Mindset',
+        'Income & Cash Flow',
+        'Expenses & Budgeting',
+        'Saving Fundamentals',
+        'Emergency Planning'
+      ]
     },
     {
       id: 1,
-      title: 'Saving Strategies',
-      description: 'Learn effective saving techniques',
-      icon: '🏦',
+      title: 'DEBT & CREDIT',
+      shortTitle: 'Debt & Credit',
+      subtitle: 'Adulting Mode',
+      theme: 'Borrow → Control → Escape',
+      color: '#3b82f6', // blue
+      icon: '🔵',
       completed: false,
       locked: false,
-      position: { x: 35, y: 45 }
+      position: { x: 45, y: 50 }, // Second tower position
+      moduleCount: 5,
+      modules: [
+        'Debt Basics',
+        'Credit Cards & Score',
+        'Loan Traps',
+        'Debt Escape Strategies',
+        'Financial Discipline'
+      ]
     },
     {
       id: 2,
-      title: 'Investing 101',
-      description: 'Begin your investment journey',
-      icon: '📈',
+      title: 'PROTECTION & SECURITY',
+      shortTitle: 'Protection',
+      subtitle: 'Defense Mode',
+      theme: 'Earn → Protect → Defend',
+      color: '#a855f7', // purple
+      icon: '🟣',
       completed: false,
       locked: false,
-      position: { x: 60, y: 48 }
+      position: { x: 70, y: 50 }, // Third tower position
+      moduleCount: 3,
+      modules: [
+        'Banking & Digital Safety',
+        'Emergency Funds & Safety Nets',
+        'Income Protection'
+      ]
     },
     {
       id: 3,
-      title: 'Taxes & Credit',
-      description: 'Understand taxes and credit scores',
-      icon: '📊',
+      title: 'RISK & WEALTH GROWTH',
+      shortTitle: 'Wealth Growth',
+      subtitle: 'Prosperity Mode',
+      theme: 'Protect → Grow → Multiply',
+      color: '#f97316', // orange
+      icon: '🟠',
       completed: false,
-      locked: true,
-      position: { x: 85, y: 52 }
+      locked: false,
+      position: { x: 95, y: 50 }, // Fourth tower position
+      moduleCount: 3,
+      modules: [
+        'Risk & Insurance',
+        'Investing Basics',
+        'Long-Term Wealth'
+      ]
     }
-  ];
+  ], []);
 
-  // Handle module click
-  const handleModuleClick = (moduleId) => {
-    const module = modules.find(m => m.id === moduleId);
-    if (module.locked || isAnimating) return;
+  // Check level completion
+  useEffect(() => {
+    // This will track when levels are completed for future enhancements
+  }, [levels]);
+
+  // Handle level click
+  const handleLevelClick = (levelId) => {
+    const level = levels.find(l => l.id === levelId);
+    
+    if (!level || level.locked || isAnimating) return;
     
     setIsAnimating(true);
-    setCurrentModule(moduleId);
-    setSelectedModule(module);
+    setCurrentLevel(levelId);
+    setSelectedLevel(level);
 
     // After car reaches destination, show chapter
     setTimeout(() => {
@@ -78,11 +124,12 @@ const LearningWorld = ({ onClose }) => {
   // Return to city
   const handleReturnToCity = () => {
     setShowChapter(false);
-    setSelectedModule(null);
+    setSelectedLevel(null);
   };
 
-  // Calculate progress
-  const progress = Math.round((modules.filter(m => m.completed).length / modules.length) * 100);
+  // Calculate overall progress
+  const completedLevels = levels.filter(l => l.completed).length;
+  const progress = Math.round((completedLevels / levels.length) * 100);
 
   return (
     <motion.div
@@ -119,7 +166,11 @@ const LearningWorld = ({ onClose }) => {
       </AnimatePresence>
 
       {/* Progress Overlay */}
-      <UIOverlay progress={progress} />
+      <UIOverlay 
+        progress={progress} 
+        currentLevel={currentLevel}
+        levels={levels}
+      />
 
       {/* Main Content */}
       <AnimatePresence mode="wait">
@@ -133,16 +184,16 @@ const LearningWorld = ({ onClose }) => {
             className="w-full h-full"
           >
             <CityMap
-              modules={modules}
-              currentModule={currentModule}
+              levels={levels}
+              currentLevel={currentLevel}
               isAnimating={isAnimating}
-              onModuleClick={handleModuleClick}
+              onLevelClick={handleLevelClick}
             />
           </motion.div>
         ) : (
           <ChapterTransition
             key="chapter"
-            module={selectedModule}
+            level={selectedLevel}
             onReturn={handleReturnToCity}
           />
         )}

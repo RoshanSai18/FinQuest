@@ -1,9 +1,47 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const RoadPath = () => {
-  // Define the curved road path using SVG path
-  const roadPath = "M 100 450 Q 400 420, 700 440 T 1300 460 T 1900 470";
+const RoadPath = ({ levels = [] }) => {
+  // Generate dynamic wiggly road path through all levels
+  const generateRoadPath = () => {
+    if (levels.length === 0) {
+      return "M 100 450 Q 400 420, 700 440 T 1300 460 T 1900 470";
+    }
+    
+    // Convert level positions to SVG coordinates (2000 viewBox width)
+    const points = levels.map(level => ({
+      x: (level.position.x / 100) * 2000,
+      y: (level.position.y / 100) * 800 + 50 // Offset to road level
+    }));
+    
+    // Create smooth curved wiggly path through points
+    if (points.length === 1) {
+      return `M ${points[0].x} ${points[0].y}`;
+    }
+    
+    let path = `M ${points[0].x - 150} ${points[0].y}`;
+    
+    for (let i = 0; i < points.length - 1; i++) {
+      const current = points[i];
+      const next = points[i + 1];
+      
+      // Add variation to make it wiggly
+      const controlX1 = current.x + (next.x - current.x) * 0.3;
+      const controlY1 = current.y + (i % 2 === 0 ? -30 : 30); // Alternate up/down
+      const controlX2 = current.x + (next.x - current.x) * 0.7;
+      const controlY2 = next.y + (i % 2 === 0 ? 30 : -30); // Alternate down/up
+      
+      path += ` C ${controlX1} ${controlY1}, ${controlX2} ${controlY2}, ${next.x} ${next.y}`;
+    }
+    
+    // Continue past last point
+    const last = points[points.length - 1];
+    path += ` L ${last.x + 150} ${last.y}`;
+    
+    return path;
+  };
+
+  const roadPath = generateRoadPath();
   
   return (
     <g id="road">
