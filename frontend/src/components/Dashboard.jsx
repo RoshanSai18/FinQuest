@@ -1,277 +1,348 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  LogOut, 
-  TrendingUp, 
-  TrendingDown,
-  DollarSign, 
-  PiggyBank, 
-  CreditCard,
-  ArrowUpRight,
-  ArrowDownRight,
-  Activity,
-  Target,
-  Calendar
+  GraduationCap,
+  BarChart3,
+  User,
+  LogOut,
+  Sparkles,
+  MessageCircle,
+  X
 } from 'lucide-react';
 import { GradientText } from './UIComponents';
+import LearningWorld from './learning/LearningWorld';
 
 const Dashboard = ({ user, onLogout }) => {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [hoveredCircle, setHoveredCircle] = useState(null);
+  const [activeView, setActiveView] = useState(null); // null, 'learn', 'tracker', 'profile'
 
-  // Sample data
-  const stats = [
-    { 
-      label: 'Total Balance', 
-      value: '₹12,45,680', 
-      change: '+12.5%', 
-      isPositive: true,
-      icon: DollarSign,
-      color: 'text-blue-400'
+  const actionCircles = [
+    {
+      id: 'learn',
+      label: 'Learn Now!',
+      icon: GraduationCap,
+      description: 'Master financial literacy',
+      gradient: 'from-primary/20 via-primary/10 to-transparent'
     },
-    { 
-      label: 'Monthly Savings', 
-      value: '₹45,230', 
-      change: '+8.2%', 
-      isPositive: true,
-      icon: PiggyBank,
-      color: 'text-green-400'
+    {
+      id: 'tracker',
+      label: 'Expense Tracker',
+      icon: BarChart3,
+      description: 'Track your spending',
+      gradient: 'from-primary/20 via-primary/10 to-transparent'
     },
-    { 
-      label: 'Expenses', 
-      value: '₹2,45,680', 
-      change: '-3.1%', 
-      isPositive: true,
-      icon: CreditCard,
-      color: 'text-orange-400'
-    },
-    { 
-      label: 'Investments', 
-      value: '₹8,65,420', 
-      change: '+15.3%', 
-      isPositive: true,
-      icon: TrendingUp,
-      color: 'text-purple-400'
-    },
+    {
+      id: 'profile',
+      label: 'Profile',
+      icon: User,
+      description: 'Manage your account',
+      gradient: 'from-primary/20 via-primary/10 to-transparent'
+    }
   ];
 
-  const recentTransactions = [
-    { id: 1, name: 'Amazon Purchase', amount: -2499, date: '2026-01-30', category: 'Shopping' },
-    { id: 2, name: 'Salary Credit', amount: 85000, date: '2026-01-28', category: 'Income' },
-    { id: 3, name: 'Electricity Bill', amount: -1250, date: '2026-01-27', category: 'Utilities' },
-    { id: 4, name: 'Restaurant', amount: -1850, date: '2026-01-26', category: 'Food & Dining' },
-    { id: 5, name: 'Mutual Fund SIP', amount: -5000, date: '2026-01-25', category: 'Investment' },
-  ];
+  const handleCircleClick = (id) => {
+    setActiveView(id);
+  };
 
-  const goals = [
-    { id: 1, name: 'Emergency Fund', current: 45000, target: 100000, color: 'bg-blue-500' },
-    { id: 2, name: 'Vacation', current: 32000, target: 80000, color: 'bg-green-500' },
-    { id: 3, name: 'Car Down Payment', current: 125000, target: 200000, color: 'bg-purple-500' },
-  ];
+  // If a view is active, render that view
+  if (activeView === 'learn') {
+    return <LearningWorld onBack={() => setActiveView(null)} />;
+  }
+
+  if (activeView === 'tracker') {
+    // TODO: Implement Expense Tracker view
+    return (
+      <div className="min-h-screen bg-dark text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">Expense Tracker</h1>
+          <p className="text-gray-400 mb-6">Coming soon...</p>
+          <button
+            onClick={() => setActiveView(null)}
+            className="px-6 py-3 bg-primary text-dark rounded-lg font-bold"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeView === 'profile') {
+    // TODO: Implement Profile view
+    return (
+      <div className="min-h-screen bg-dark text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">Profile</h1>
+          <p className="text-gray-400 mb-6">Coming soon...</p>
+          <button
+            onClick={() => setActiveView(null)}
+            className="px-6 py-3 bg-primary text-dark rounded-lg font-bold"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-dark text-white">
+    <div className="min-h-screen bg-dark text-white relative overflow-hidden">
+      {/* Ambient Background Effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      </div>
+
       {/* Header */}
-      <nav className="border-b border-white/10 bg-dark/95 backdrop-blur-lg sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                <Activity className="w-6 h-6 text-dark" />
-              </div>
-              <h1 className="text-2xl font-bold">
-                <GradientText>FinQuest</GradientText>
-              </h1>
-            </div>
-
-            {/* User Info & Logout */}
-            <div className="flex items-center gap-4">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm text-gray-400">Welcome back,</p>
-                <p className="font-semibold">{user?.fullName || 'User'}</p>
-              </div>
-              {user?.avatar && (
-                <img 
-                  src={user.avatar} 
-                  alt={user.fullName}
-                  className="w-10 h-10 rounded-full border-2 border-primary/50"
-                />
-              )}
-              <button
-                onClick={onLogout}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-primary/30 transition-all"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
-        {/* Welcome Section */}
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="relative z-10 px-8 py-6 flex items-center justify-between"
+      >
+        {/* Logo */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          whileHover={{ scale: 1.02 }}
+          className="flex items-center gap-3 cursor-pointer"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-2">
-            Welcome back, {user?.fullName?.split(' ')[0] || 'User'}! 👋
-          </h2>
-          <p className="text-gray-400">
-            Here&apos;s your financial overview for {new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
-          </p>
+          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-primary/80 to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30">
+            <Sparkles className="w-6 h-6 text-dark" />
+            <div className="absolute inset-0 rounded-xl bg-primary/20 blur-lg" />
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            <GradientText>FinQuest</GradientText>
+          </h1>
         </motion.div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 hover:border-primary/30 transition-all"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center ${stat.color}`}>
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <div className={`flex items-center gap-1 text-sm ${stat.isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                    {stat.isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                    {stat.change}
-                  </div>
-                </div>
-                <p className="text-gray-400 text-sm mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold">{stat.value}</p>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Transactions */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-            className="lg:col-span-2 p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold">Recent Transactions</h3>
-              <button className="text-sm text-primary hover:text-primary/80 transition-colors">
-                View All
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {recentTransactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      transaction.amount > 0 ? 'bg-green-400/20 text-green-400' : 'bg-red-400/20 text-red-400'
-                    }`}>
-                      {transaction.amount > 0 ? (
-                        <TrendingUp className="w-5 h-5" />
-                      ) : (
-                        <TrendingDown className="w-5 h-5" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-semibold">{transaction.name}</p>
-                      <p className="text-sm text-gray-400">{transaction.category}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className={`font-bold ${transaction.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {transaction.amount > 0 ? '+' : ''}₹{Math.abs(transaction.amount).toLocaleString('en-IN')}
-                    </p>
-                    <p className="text-sm text-gray-400">{new Date(transaction.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Financial Goals */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-            className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold">Financial Goals</h3>
-              <Target className="w-5 h-5 text-primary" />
-            </div>
-
-            <div className="space-y-6">
-              {goals.map((goal) => {
-                const progress = (goal.current / goal.target) * 100;
-                return (
-                  <div key={goal.id}>
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="font-semibold text-sm">{goal.name}</p>
-                      <p className="text-xs text-gray-400">{Math.round(progress)}%</p>
-                    </div>
-                    <div className="w-full bg-white/10 rounded-full h-2 mb-2 overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progress}%` }}
-                        transition={{ duration: 1, delay: 0.6 }}
-                        className={`h-full ${goal.color} rounded-full`}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-400">
-                      ₹{goal.current.toLocaleString('en-IN')} of ₹{goal.target.toLocaleString('en-IN')}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-
-            <button className="w-full mt-6 py-3 px-4 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40 text-primary font-semibold transition-all">
-              Create New Goal
-            </button>
-          </motion.div>
-        </div>
-
-        {/* Quick Actions */}
+        {/* User Info & Logout */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="mt-6 p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center gap-4"
         >
-          <h3 className="text-xl font-bold mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Add Transaction', icon: DollarSign },
-              { label: 'Create Budget', icon: PiggyBank },
-              { label: 'Run Simulation', icon: Activity },
-              { label: 'Schedule Payment', icon: Calendar },
-            ].map((action) => {
-              const Icon = action.icon;
+          {user?.avatar && (
+            <motion.img
+              whileHover={{ scale: 1.05 }}
+              src={user.avatar}
+              alt={user.fullName}
+              className="w-10 h-10 rounded-full border-2 border-primary/30 shadow-lg shadow-primary/20"
+            />
+          )}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onLogout}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-primary/30 transition-all backdrop-blur-sm"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="text-base font-bold">Logout</span>
+          </motion.button>
+        </motion.div>
+      </motion.header>
+
+      {/* Main Content - Centered Action Circles */}
+      <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-120px)] px-8">
+        <div className="w-full max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 items-center justify-items-center"
+          >
+            {actionCircles.map((circle, index) => {
+              const Icon = circle.icon;
+              const isHovered = hoveredCircle === circle.id;
+
               return (
-                <button
-                  key={action.label}
-                  className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-primary/30 transition-all group"
+                <motion.div
+                  key={circle.id}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ 
+                    delay: 0.4 + index * 0.1,
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 20
+                  }}
+                  className="flex flex-col items-center gap-6 w-full max-w-xs"
                 >
-                  <Icon className="w-6 h-6 mb-2 text-primary group-hover:scale-110 transition-transform" />
-                  <p className="text-sm font-medium">{action.label}</p>
-                </button>
+                  {/* Circle Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.05, y: -8 }}
+                    whileTap={{ scale: 0.95 }}
+                    onHoverStart={() => setHoveredCircle(circle.id)}
+                    onHoverEnd={() => setHoveredCircle(null)}
+                    onFocus={() => setHoveredCircle(circle.id)}
+                    onBlur={() => setHoveredCircle(null)}
+                    onClick={() => handleCircleClick(circle.id)}
+                    className="relative w-48 h-48 rounded-full bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 hover:border-primary/50 transition-all duration-300 backdrop-blur-md shadow-2xl hover:shadow-primary/20 focus:outline-none focus:ring-4 focus:ring-primary/30 group"
+                    aria-label={`${circle.label} - ${circle.description}`}
+                  >
+                    {/* Glow Effect */}
+                    <motion.div
+                      animate={{
+                        opacity: isHovered ? 0.6 : 0,
+                        scale: isHovered ? 1.2 : 1
+                      }}
+                      transition={{ duration: 0.3 }}
+                      className={`absolute inset-0 rounded-full bg-gradient-to-br ${circle.gradient} blur-xl`}
+                    />
+
+                    {/* Icon */}
+                    <motion.div
+                      animate={{
+                        scale: isHovered ? 1.1 : 1,
+                        rotate: isHovered ? 5 : 0
+                      }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className="absolute inset-0 flex items-center justify-center"
+                    >
+                      <Icon 
+                        className="w-20 h-20 text-primary drop-shadow-[0_0_8px_rgba(200,255,0,0.5)]" 
+                        strokeWidth={1.5}
+                      />
+                    </motion.div>
+
+                    {/* Hover Ring */}
+                    <motion.div
+                      animate={{
+                        scale: isHovered ? 1 : 0.95,
+                        opacity: isHovered ? 1 : 0
+                      }}
+                      className="absolute inset-0 rounded-full border-2 border-primary/50 shadow-[0_0_20px_rgba(200,255,0,0.3)]"
+                    />
+                  </motion.button>
+
+                  {/* Label */}
+                  <div className="text-center space-y-2">
+                    <motion.h3
+                      animate={{
+                        color: isHovered ? 'rgb(200, 255, 0)' : 'rgb(255, 255, 255)'
+                      }}
+                      className="text-2xl font-extrabold tracking-tight"
+                      style={{ fontSize: '1.5rem' }}
+                    >
+                      {circle.label}
+                    </motion.h3>
+                    <motion.p
+                      animate={{
+                        opacity: isHovered ? 1 : 0.8
+                      }}
+                      className="text-base font-semibold text-gray-300"
+                      style={{ fontSize: '1.1rem' }}
+                    >
+                      {circle.description}
+                    </motion.p>
+                  </div>
+                </motion.div>
               );
             })}
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
+
+      {/* Floating Chatbot */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
+        className="fixed bottom-8 right-8 z-50"
+      >
+        <AnimatePresence>
+          {isChatOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="absolute bottom-20 right-0 w-80 h-96 bg-dark/95 backdrop-blur-xl border border-primary/30 rounded-2xl shadow-2xl shadow-primary/20 overflow-hidden mb-2"
+            >
+              {/* Chat Header */}
+              <div className="bg-gradient-to-r from-primary/20 to-primary/10 border-b border-primary/30 px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                    <MessageCircle className="w-4 h-4 text-dark" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-base">FinQuest Assistant</p>
+                    <p className="text-sm font-medium text-gray-300">AI-powered financial advisor</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsChatOpen(false)}
+                  className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Chat Content */}
+              <div className="p-4 h-[calc(100%-120px)] flex items-center justify-center">
+                <p className="text-gray-300 text-center text-base font-semibold">
+                  Chat interface coming soon!<br />
+                  Ask me anything about your finances.
+                </p>
+              </div>
+
+              {/* Chat Input */}
+              <div className="border-t border-white/10 p-4">
+                <input
+                  type="text"
+                  placeholder="Ask me anything..."
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-base font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                  disabled
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Chatbot Button */}
+        <motion.button
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className="relative w-16 h-16 rounded-full bg-primary shadow-2xl shadow-primary/40 flex items-center justify-center group overflow-hidden"
+          aria-label="Open AI Assistant"
+        >
+          {/* Pulse Animation */}
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.5, 0, 0.5]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute inset-0 rounded-full bg-primary"
+          />
+
+          {/* Icon */}
+          <motion.div
+            animate={{ rotate: isChatOpen ? 180 : 0 }}
+            transition={{ type: "spring", stiffness: 200 }}
+          >
+            {isChatOpen ? (
+              <X className="w-7 h-7 text-dark relative z-10" />
+            ) : (
+              <MessageCircle className="w-7 h-7 text-dark relative z-10" />
+            )}
+          </motion.div>
+
+          {/* Notification Badge */}
+          {!isChatOpen && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg"
+            >
+              1
+            </motion.div>
+          )}
+        </motion.button>
+      </motion.div>
     </div>
   );
 };
