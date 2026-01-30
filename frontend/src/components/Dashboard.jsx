@@ -5,15 +5,12 @@ import {
   BarChart3,
   User,
   LogOut,
-  Sparkles,
-  MessageCircle,
-  X
+  Sparkles
 } from 'lucide-react';
 import { GradientText } from './UIComponents';
 import LearningWorld from './learning/LearningWorld';
 
 const Dashboard = ({ user, onLogout }) => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [hoveredCircle, setHoveredCircle] = useState(null);
   const [showLearning, setShowLearning] = useState(false);
 
@@ -34,9 +31,9 @@ const Dashboard = ({ user, onLogout }) => {
     },
     {
       id: 'whefile',
-      label: 'Profile',
+      label: 'Advisor',
       icon: User,
-      description: 'Manage your account',
+      description: 'AI powered financial Advisor',
       gradient: 'from-primary/20 via-primary/10 to-transparent'
     }
   ];
@@ -211,108 +208,6 @@ const Dashboard = ({ user, onLogout }) => {
           </motion.div>
         </div>
       </div>
-
-      {/* Floating Chatbot */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
-        className="fixed bottom-8 right-8 z-50"
-      >
-        <AnimatePresence>
-          {isChatOpen && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="absolute bottom-20 right-0 w-80 h-96 bg-dark/95 backdrop-blur-xl border border-primary/30 rounded-2xl shadow-2xl shadow-primary/20 overflow-hidden mb-2"
-            >
-              {/* Chat Header */}
-              <div className="bg-gradient-to-r from-primary/20 to-primary/10 border-b border-primary/30 px-4 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                    <MessageCircle className="w-4 h-4 text-dark" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-base">FinQuest Assistant</p>
-                    <p className="text-sm font-medium text-gray-300">AI-powered financial advisor</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsChatOpen(false)}
-                  className="p-1 hover:bg-white/10 rounded-lg transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Chat Content */}
-              <div className="p-4 h-[calc(100%-120px)] flex items-center justify-center">
-                <p className="text-gray-300 text-center text-base font-semibold">
-                  Chat interface coming soon!<br />
-                  Ask me anything about your finances.
-                </p>
-              </div>
-
-              {/* Chat Input */}
-              <div className="border-t border-white/10 p-4">
-                <input
-                  type="text"
-                  placeholder="Ask me anything..."
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-base font-medium focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
-                  disabled
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Chatbot Button */}
-        <motion.button
-          whileHover={{ scale: 1.1, rotate: 5 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setIsChatOpen(!isChatOpen)}
-          className="relative w-16 h-16 rounded-full bg-primary shadow-2xl shadow-primary/40 flex items-center justify-center group overflow-hidden"
-          aria-label="Open AI Assistant"
-        >
-          {/* Pulse Animation */}
-          <motion.div
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.5, 0, 0.5]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute inset-0 rounded-full bg-primary"
-          />
-
-          {/* Icon */}
-          <motion.div
-            animate={{ rotate: isChatOpen ? 180 : 0 }}
-            transition={{ type: "spring", stiffness: 200 }}
-          >
-            {isChatOpen ? (
-              <X className="w-7 h-7 text-dark relative z-10" />
-            ) : (
-              <MessageCircle className="w-7 h-7 text-dark relative z-10" />
-            )}
-          </motion.div>
-
-          {/* Notification Badge */}
-          {!isChatOpen && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg"
-            >
-              1
-            </motion.div>
-          )}
-        </motion.button>
-      </motion.div>
       </div>
     </>
   );
