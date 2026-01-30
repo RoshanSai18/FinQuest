@@ -10,7 +10,16 @@ const LearningWorld = ({ onClose }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [showChapter, setShowChapter] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState(null);
+  const [levelProgress, setLevelProgress] = useState({});
 
+  // Handle progress updates from CoursePlayer
+  const handleProgressUpdate = (levelId, percentage, completedCount, totalChapters) => {
+    setLevelProgress(prev => ({
+      ...prev,
+      [levelId]: { percentage, completedCount, totalChapters }
+    }));
+  };
+  
   // 4 Level towers - each level is a tower
   const levels = useMemo(() => [
     {
@@ -21,7 +30,8 @@ const LearningWorld = ({ onClose }) => {
       theme: 'Understand → Control → Stabilize',
       color: '#10b981', // green
       icon: '🟢',
-      completed: false,
+      completed: levelProgress[0]?.percentage >= 100,
+      progress: levelProgress[0]?.percentage || 0,
       locked: false,
       position: { x: 20, y: 50 }, // First tower position
       moduleCount: 5,
@@ -41,7 +51,8 @@ const LearningWorld = ({ onClose }) => {
       theme: 'Borrow → Control → Escape',
       color: '#3b82f6', // blue
       icon: '🔵',
-      completed: false,
+      completed: levelProgress[1]?.percentage >= 100,
+      progress: levelProgress[1]?.percentage || 0,
       locked: false,
       position: { x: 45, y: 50 }, // Second tower position
       moduleCount: 5,
@@ -61,7 +72,8 @@ const LearningWorld = ({ onClose }) => {
       theme: 'Earn → Protect → Defend',
       color: '#a855f7', // purple
       icon: '🟣',
-      completed: false,
+      completed: levelProgress[2]?.percentage >= 100,
+      progress: levelProgress[2]?.percentage || 0,
       locked: false,
       position: { x: 70, y: 50 }, // Third tower position
       moduleCount: 3,
@@ -79,7 +91,8 @@ const LearningWorld = ({ onClose }) => {
       theme: 'Protect → Grow → Multiply',
       color: '#f97316', // orange
       icon: '🟠',
-      completed: false,
+      completed: levelProgress[3]?.percentage >= 100,
+      progress: levelProgress[3]?.percentage || 0,
       locked: false,
       position: { x: 95, y: 50 }, // Fourth tower position
       moduleCount: 3,
@@ -89,7 +102,7 @@ const LearningWorld = ({ onClose }) => {
         'Long-Term Wealth'
       ]
     }
-  ], []);
+  ], [levelProgress]);
 
   // Check level completion
   useEffect(() => {
@@ -195,6 +208,7 @@ const LearningWorld = ({ onClose }) => {
             key="chapter"
             level={selectedLevel}
             onReturn={handleReturnToCity}
+            onProgressUpdate={handleProgressUpdate}
           />
         )}
       </AnimatePresence>

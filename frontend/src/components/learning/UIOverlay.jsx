@@ -1,25 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const UIOverlay = ({ progress, currentLevel, levels }) => {
   const levelInfo = levels && currentLevel !== undefined ? levels[currentLevel] : null;
   const [hoveredModule, setHoveredModule] = useState(null);
+  const [allCompletedChapters, setAllCompletedChapters] = useState(new Set());
+  
+  // Load all completed chapters from localStorage for all levels
+  useEffect(() => {
+    const completed = new Set();
+    if (levels) {
+      levels.forEach(level => {
+        const storageKey = `finquest_progress_level_${level.id}`;
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          const levelCompleted = JSON.parse(saved);
+          levelCompleted.forEach(chapterKey => {
+            completed.add(`${level.id}-${chapterKey}`);
+          });
+        }
+      });
+    }
+    setAllCompletedChapters(completed);
+  }, [levels, progress]);
   
   // Flatten all modules across levels to create milestone array
   const allModules = levels ? levels.flatMap((level, levelIndex) => 
-    level.modules.map((moduleName, moduleIndex) => ({
-      id: `${levelIndex}-${moduleIndex}`,
-      name: moduleName,
-      levelTitle: level.shortTitle || level.title,
-      levelIcon: level.icon,
-      levelColor: level.color,
-      levelIndex,
-      moduleIndex,
-      completed: level.completed || (levelIndex < currentLevel),
-      isCurrent: levelIndex === currentLevel && moduleIndex === 0,
-      locked: level.locked || levelIndex > currentLevel
-    }))
+    level.modules.map((moduleName, moduleIndex) => {
+      // Check if this specific module chapter is completed
+      const chapterKey = `${levelIndex}-${moduleIndex}-0`; // First chapter of each module
+      const isCompleted = allCompletedChapters.has(chapterKey);
+      
+      return {
+        id: `${levelIndex}-${moduleIndex}`,
+        name: moduleName,
+        levelTitle: level.shortTitle || level.title,
+        levelIcon: level.icon,
+        levelColor: level.color,
+        levelIndex,
+        moduleIndex,
+        completed: isCompleted || level.completed,
+        isCurrent: levelIndex === currentLevel && !isCompleted,
+        locked: level.locked || levelIndex > currentLevel
+      };
+    })
   ) : [];
+  
+  // Calculate overall progress percentage
+  const totalModules = allModules.length;
+  const completedModules = allModules.filter(m => m.completed).length;
+  const progressPercentage = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
   
   return (
     <div className="fixed top-0 left-0 right-0 z-40 flex justify-center pointer-events-none">
@@ -116,7 +146,7 @@ const UIOverlay = ({ progress, currentLevel, levels }) => {
           </div>
 
           {/* Percentage */}
-          <span className="text-xl font-extrabold text-primary whitespace-nowrap">{progress}%</span>
+          <span className="text-xl font-extrabold text-primary whitespace-nowrap">{progressPercentage}%</span>
         </div>
         
         {/* Hover Tooltip */}

@@ -4,7 +4,7 @@ import { ArrowLeft, Play, BookOpen, Clock, CheckCircle, Lock, X } from 'lucide-r
 import CoursePlayer from './CoursePlayer';
 import { level1CourseData, level2CourseData, level3CourseData, level4CourseData } from './courseData';
 
-const ChapterTransition = ({ level, onReturn }) => {
+const ChapterTransition = ({ level, onReturn, onProgressUpdate }) => {
   const [showSyllabus, setShowSyllabus] = useState(false);
   const [showCoursePlayer, setShowCoursePlayer] = useState(false);
   
@@ -26,7 +26,7 @@ const ChapterTransition = ({ level, onReturn }) => {
   
   // If CoursePlayer is active, show it
   if (showCoursePlayer && courseData) {
-    return <CoursePlayer levelData={courseData} onBack={handleBackFromPlayer} />;
+    return <CoursePlayer levelData={courseData} onBack={handleBackFromPlayer} onProgressUpdate={onProgressUpdate} />;
   }
 
   // Extract level info

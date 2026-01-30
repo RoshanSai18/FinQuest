@@ -1,15 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play, CheckCircle, Lock, ChevronDown, ChevronUp, Video, FileText, ArrowLeft } from 'lucide-react';
 import QuizModal from './QuizModal';
 
-const CoursePlayer = ({ levelData, onBack }) => {
+const CoursePlayer = ({ levelData, onBack, onProgressUpdate }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [expandedModule, setExpandedModule] = useState(0);
   const [activeChapter, setActiveChapter] = useState({ moduleIndex: 0, chapterIndex: 0 });
-  const [completedVideos, setCompletedVideos] = useState(new Set());
   const [showQuiz, setShowQuiz] = useState(false);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
+  
+  // Storage key for this level's progress
+  const storageKey = `finquest_progress_level_${levelData.id}`;
+  
+  // Load completed videos from localStorage
+  const [completedVideos, setCompletedVideos] = useState(() => {
+    const saved = localStorage.getItem(storageKey);
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+  
+  // Track completed quizzes separately
+  const quizStorageKey = `finquest_quiz_progress_level_${levelData.id}`;
+  const [completedQuizzes, setCompletedQuizzes] = useState(() => {
+    const saved = localStorage.getItem(quizStorageKey);
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+  
+  // Save to localStorage whenever completedVideos changes
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify([...completedVideos]));
+    
+    // Calculate and update progress for this level
+    if (onProgressUpdate) {
+      const totalChapters = levelData.modules.reduce((sum, module) => 
+        sum + (module.chapters?.length || 0), 0
+      );
+      const completedCount = completedVideos.size;
+      const percentage = totalChapters > 0 ? (completedCount / totalChapters) * 100 : 0;
+      
+      onProgressUpdate(levelData.id, percentage, completedCount, totalChapters);
+    }
+  }, [completedVideos, levelData, onProgressUpdate, storageKey]);
+  
+  // Save completed quizzes to localStorage
+  useEffect(() => {
+    localStorage.setItem(quizStorageKey, JSON.stringify([...completedQuizzes]));
+  }, [completedQuizzes, quizStorageKey]);
 
   const primaryColor = '#c8ff00';
   const levelColor = levelData.color || primaryColor;
@@ -33,6 +69,10 @@ const CoursePlayer = ({ levelData, onBack }) => {
       const key = `${moduleIndex}-${chapterIndex}`;
       return completedVideos.has(key);
     });
+  };
+  
+  const handleQuizComplete = (moduleIndex) => {
+    setCompletedQuizzes(prev => new Set([...prev, moduleIndex]));
   };
 
   const tabs = [
@@ -383,7 +423,7 @@ const CoursePlayer = ({ levelData, onBack }) => {
                         <button
                           onClick={() => {
                             if (isModuleCompleted(moduleIndex)) {
-                              setSelectedQuiz(module.quiz);
+                              setSelectedQuiz({ ...module.quiz, moduleIndex });
                               setShowQuiz(true);
                             }
                           }}
@@ -399,8 +439,10 @@ const CoursePlayer = ({ levelData, onBack }) => {
                             style={{ color: isModuleCompleted(moduleIndex) ? levelColor : 'rgba(255,255,255,0.3)' }}
                           />
                           <span className="text-sm text-white/70 flex-1">{module.quiz.title}</span>
-                          {isModuleCompleted(moduleIndex) ? (
+                          {completedQuizzes.has(moduleIndex) ? (
                             <CheckCircle className="w-4 h-4" style={{ color: levelColor }} />
+                          ) : isModuleCompleted(moduleIndex) ? (
+                            <span className="w-4 h-4" />
                           ) : (
                             <Lock className="w-4 h-4 text-white/30" />
                           )}
@@ -424,7 +466,8 @@ const CoursePlayer = ({ levelData, onBack }) => {
             onClose={() => {
               setShowQuiz(false);
               setSelectedQuiz(null);
-            }} 
+            }}
+            onQuizComplete={handleQuizComplete}
           />
         )}
       </AnimatePresence>

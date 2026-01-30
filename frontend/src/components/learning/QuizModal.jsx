@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, XCircle, Trophy } from 'lucide-react';
+import { X, Trophy } from 'lucide-react';
 
-const QuizModal = ({ quiz, levelColor, onClose }) => {
+const QuizModal = ({ quiz, levelColor, onClose, onQuizComplete }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
@@ -24,6 +24,11 @@ const QuizModal = ({ quiz, levelColor, onClose }) => {
     });
     setScore(correctCount);
     setShowResults(true);
+    
+    // Mark quiz as completed
+    if (onQuizComplete && quiz.moduleIndex !== undefined) {
+      onQuizComplete(quiz.moduleIndex);
+    }
   };
 
   const handleNext = () => {
