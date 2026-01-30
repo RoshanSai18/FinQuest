@@ -95,7 +95,8 @@ function App() {
         {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
       </AnimatePresence>
 
-      {!isLoading && (
+      {
+      !isLoading && (
         <div className="min-h-screen bg-dark text-white">
           {/* ============================================================================ */}
           {/* NAVIGATION */}
@@ -728,120 +729,151 @@ function App() {
           </footer>
 
           {/* ============================================================================ */}
-          {/* AUTH MODAL */}
-          {/* ============================================================================ */}
-          <AnimatePresence>
-            {isAuthModalOpen && (
-              <>
-                {/* Backdrop */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setIsAuthModalOpen(false)}
-                  className="fixed inset-0 z-[60] modal-backdrop"
+{/* AUTH MODAL - FULL REPLACEMENT */}
+{/* ============================================================================ */}
+<AnimatePresence>
+  {isAuthModalOpen && (
+    <>
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setIsAuthModalOpen(false)}
+        className="fixed inset-0 z-[60] modal-backdrop bg-black/60 backdrop-blur-sm"
+      />
+
+      {/* Modal */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        className="fixed inset-0 z-[70] flex items-center justify-center p-6"
+      >
+        <ShineBorder className="w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
+          <div className="p-8">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-3xl font-bold text-white">
+                {authMode === 'login' ? 'Welcome Back' : 'Get Started'}
+              </h2>
+              <button
+                onClick={() => setIsAuthModalOpen(false)}
+                className="p-2 rounded-lg text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <p className="text-gray-400 mb-6">
+              {authMode === 'login'
+                ? 'Log in to access your financial dashboard'
+                : 'Create your account and start your free trial'}
+            </p>
+
+            {/* --- GOOGLE BUTTON (NEW) --- */}
+            <button
+              onClick={handleGoogleLogin}
+              className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-bold py-3 px-4 rounded-xl mb-6 hover:bg-gray-200 transition-colors"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+              </svg>
+              Sign in with Google
+            </button>
+
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-px bg-gray-800 flex-1"></div>
+              <span className="text-gray-500 text-sm font-medium">OR</span>
+              <div className="h-px bg-gray-800 flex-1"></div>
+            </div>
+            {/* --------------------------- */}
+
+            {/* Form */}
+            <form onSubmit={handleAuthSubmit} className="space-y-5">
+              {authMode === 'signup' && (
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-300">Full Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    placeholder="John Doe"
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-300">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    placeholder="you@example.com"
+                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2 text-gray-300">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                 />
+              </div>
 
-                {/* Modal */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                  className="fixed inset-0 z-[70] flex items-center justify-center p-6"
-                >
-                  <ShineBorder className="w-full max-w-md">
-                    <div className="p-8">
-                      {/* Header */}
-                      <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-3xl font-bold">
-                          {authMode === 'login' ? 'Welcome Back' : 'Get Started'}
-                        </h2>
-                        <button
-                          onClick={() => setIsAuthModalOpen(false)}
-                          className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-                        >
-                          <X className="w-6 h-6" />
-                        </button>
-                      </div>
+              <GradientButton type="submit" className="w-full text-lg py-3 font-semibold rounded-xl mt-2">
+                {authMode === 'login' ? 'Log In' : 'Create Account'}
+              </GradientButton>
+            </form>
 
-                      <p className="text-gray-400 mb-8">
-                        {authMode === 'login'
-                          ? 'Log in to access your financial dashboard'
-                          : 'Create your account and start your free trial'}
-                      </p>
-
-                      {/* Form */}
-                      <form onSubmit={handleAuthSubmit} className="space-y-6">
-                        {authMode === 'signup' && (
-                          <div>
-                            <label className="block text-sm font-medium mb-2">Full Name</label>
-                            <input
-                              type="text"
-                              required
-                              placeholder="John Doe"
-                              className="form-input w-full px-4 py-3 rounded-lg"
-                            />
-                          </div>
-                        )}
-
-                        <div>
-                          <label className="block text-sm font-medium mb-2">Email</label>
-                          <div className="relative">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            <input
-                              type="email"
-                              required
-                              placeholder="you@example.com"
-                              className="form-input w-full pl-12 pr-4 py-3 rounded-lg"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium mb-2">Password</label>
-                          <input
-                            type="password"
-                            required
-                            placeholder="••••••••"
-                            className="form-input w-full px-4 py-3 rounded-lg"
-                          />
-                        </div>
-
-                        <GradientButton type="submit" className="w-full text-lg py-3">
-                          {authMode === 'login' ? 'Log In' : 'Create Account'}
-                        </GradientButton>
-                      </form>
-
-                      {/* Toggle Mode */}
-                      <p className="text-center text-gray-400 mt-6">
-                        {authMode === 'login' ? "Don't have an account? " : 'Already have an account? '}
-                        <button
-                          onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
-                          className="text-primary hover:underline"
-                        >
-                          {authMode === 'login' ? 'Sign up' : 'Log in'}
-                        </button>
-                      </p>
-                    </div>
-                  </ShineBorder>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
+            {/* Toggle Mode */}
+            <p className="text-center text-gray-400 mt-6">
+              {authMode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+              <button
+                onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
+                className="text-primary hover:text-primary-400 font-semibold transition-colors hover:underline"
+              >
+                {authMode === 'login' ? 'Sign up' : 'Log in'}
+              </button>
+            </p>
+          </div>
+        </ShineBorder>
+      </motion.div>
+    </>
+  )}
+</AnimatePresence>
+</div>
+      )
 
       {/* Financial Calculator Modal - Outside loading check */}
       <FinancialCalculatorModal
         isOpen={isCalculatorModalOpen}
         onClose={() => setIsCalculatorModalOpen(false)}
       />
-
+    
       {/* Cursor Trail Effect */}
       <CursorTrail />
     </>
   );
 }
+
 
 // RetroGrid component inline since it's simple
 const RetroGrid = ({ className = '' }) => {
