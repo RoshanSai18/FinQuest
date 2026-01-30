@@ -36,7 +36,7 @@ export function TubeLightNavBar({ items, className, activeItem, onItemClick }) {
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-1 bg-dark/90 border border-primary/30 backdrop-blur-xl py-2 px-3 rounded-full shadow-xl shadow-primary/20 ml-0 md:ml-10 lg:ml-16 xl:ml-24",
+        "flex items-center justify-between gap-1 bg-dark/90 border border-primary/30 backdrop-blur-xl py-2 px-3 rounded-full shadow-xl shadow-primary/20 ml-0 md:ml-10 lg:ml-16 xl:ml-24 mr-16",
         className
       )}
     >
