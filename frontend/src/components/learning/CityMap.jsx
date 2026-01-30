@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import RoadPath from './RoadPath';
 import Tower from './Tower';
@@ -6,94 +6,63 @@ import Car from './Car';
 import Background from './Background';
 import DecorativeElements from './DecorativeElements';
 
-const CityMap = ({ modules, currentModule, onTowerClick, isTransitioning, skipAnimation }) => {
-  const [carPosition, setCarPosition] = useState(modules[0].position);
-  const [targetModule, setTargetModule] = useState(0);
+const CityMap = ({ modules, currentModule, isAnimating, onModuleClick }) => {
   const containerRef = useRef(null);
-  const [cameraOffset, setCameraOffset] = useState(0);
 
-  // Handle tower click - move car to that position
+  // Pan camera to follow car
   useEffect(() => {
-    if (isTransitioning && modules[targetModule]) {
-      setCarPosition(modules[targetModule].position);
+    if (containerRef.current && isAnimating) {
+      const module = modules[currentModule];
+      const scrollX = (module.position.x / 100) * window.innerWidth - window.innerWidth / 2;
       
-      // Calculate camera offset to keep car centered
-      const targetX = modules[targetModule].position.x;
-      // Pan camera to keep car in view
-      if (targetX > 50) {
-        setCameraOffset(-(targetX - 50) * 10);
-      } else {
-        setCameraOffset(0);
-      }
+      containerRef.current.scrollTo({
+        left: scrollX,
+        behavior: 'smooth'
+      });
     }
-  }, [isTransitioning, targetModule, modules]);
-
-  const handleTowerClickInternal = (moduleId) => {
-    setTargetModule(moduleId);
-    onTowerClick(moduleId);
-  };
-
-  // Animation duration based on skip mode
-  const animationDuration = skipAnimation ? 0.5 : 2;
+  }, [currentModule, isAnimating, modules]);
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="relative w-full h-screen overflow-hidden"
+      className="w-full h-full overflow-x-auto overflow-y-hidden relative scrollbar-hide"
+      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
     >
-      {/* Camera container - moves to follow car */}
-      <motion.div
-        animate={{ x: cameraOffset }}
-        transition={{ 
-          duration: animationDuration, 
-          ease: "easeInOut" 
-        }}
-        className="relative w-full h-full"
-        style={{ willChange: 'transform' }}
-      >
-        {/* Background (sky, clouds) */}
+      <div className="relative min-w-[200%] h-full">
+        {/* Background */}
         <Background />
 
-        {/* Main SVG Canvas */}
+        {/* SVG Container for Road and Elements */}
         <svg
-          viewBox="0 0 1200 800"
-          className="w-full h-full"
+          className="absolute inset-0 w-full h-full"
+          viewBox="0 0 2000 800"
           preserveAspectRatio="xMidYMid slice"
         >
-          {/* Ground */}
-          <rect x="0" y="600" width="1200" height="200" fill="url(#groundGradient)" />
-          <defs>
-            <linearGradient id="groundGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#1a3a1a" />
-              <stop offset="100%" stopColor="#0d1f0d" />
-            </linearGradient>
-          </defs>
-
           {/* Road Path */}
-          <RoadPath modules={modules} />
-
-          {/* Decorative Elements */}
-          <DecorativeElements modules={modules} />
+          <RoadPath />
 
           {/* Towers */}
-          {modules.map((module) => (
+          {modules.map((module, index) => (
             <Tower
               key={module.id}
               module={module}
+              index={index}
               isActive={currentModule === module.id}
-              isUnlocked={!module.locked}
-              onClick={() => handleTowerClickInternal(module.id)}
+              onClick={() => onModuleClick(module.id)}
             />
           ))}
 
           {/* Car */}
           <Car
-            position={carPosition}
-            isMoving={isTransitioning}
-            duration={animationDuration}
+            currentModule={currentModule}
+            modules={modules}
+            isAnimating={isAnimating}
           />
+
+          {/* Decorative Elements */}
+          <DecorativeElements />
         </svg>
-      </motion.div>
+      </div>
     </div>
   );
 };

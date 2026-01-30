@@ -1,177 +1,175 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Car = ({ position, isMoving, duration }) => {
-  const x = position.x * 12;
-  const y = position.y * 8 + 85; // Adjusted to sit on road
+const Car = ({ currentModule, modules, isAnimating }) => {
+  const currentModuleData = modules[currentModule];
+  
+  // Calculate car position based on module position
+  const x = (currentModuleData.position.x / 100) * 2000;
+  const y = (currentModuleData.position.y / 100) * 800;
 
   return (
-    <g>
-      {/* Dust trail when moving */}
-      {isMoving && (
+    <g id="car">
+      {/* Dust trail effect */}
+      {isAnimating && (
         <>
-          {[0, 1, 2].map((i) => (
+          {[...Array(3)].map((_, i) => (
             <motion.circle
               key={i}
-              cx={x - 20}
-              cy={y + 10}
-              r={3}
-              fill="#666"
-              initial={{ opacity: 0, scale: 0 }}
+              cx={x - 40 - i * 15}
+              cy={y + 25}
+              r="8"
+              fill="rgba(200, 255, 0, 0.3)"
+              initial={{ opacity: 0.6, scale: 1 }}
               animate={{
-                opacity: [0, 0.6, 0],
-                scale: [0, 1, 1.5],
-                x: [-10, -20, -30]
+                opacity: 0,
+                scale: 0.5,
+                x: -20
               }}
               transition={{
-                duration: 0.6,
+                duration: 0.5,
                 repeat: Infinity,
-                delay: i * 0.2
+                delay: i * 0.1
               }}
             />
           ))}
         </>
       )}
 
-      {/* Car container - moves to target position */}
+      {/* Car Group - Animated */}
       <motion.g
-        animate={{ 
-          x: x, 
-          y: y,
+        animate={{
+          x: x - 300,
+          y: y - 380
         }}
-        transition={{ 
-          duration: duration,
-          ease: "easeInOut"
+        transition={{
+          type: "spring",
+          stiffness: 50,
+          damping: 20,
+          duration: 1.8
         }}
       >
-        {/* Car shadow */}
+        {/* Car Shadow */}
         <ellipse
-          cx="0"
-          cy="18"
-          rx="22"
-          ry="4"
-          fill="#000"
-          opacity="0.4"
+          cx="300"
+          cy="410"
+          rx="40"
+          ry="10"
+          fill="rgba(0, 0, 0, 0.3)"
         />
 
-        {/* Car body */}
+        {/* Car Body */}
         <motion.g
-          animate={isMoving ? {
-            y: [0, -2, 0]
-          } : {}}
+          animate={{
+            y: isAnimating ? [-2, 2, -2] : 0
+          }}
           transition={{
             duration: 0.3,
-            repeat: isMoving ? Infinity : 0,
-            ease: "easeInOut"
+            repeat: isAnimating ? Infinity : 0
           }}
         >
-          {/* Main body */}
+          {/* Main Car Body */}
           <rect
-            x="-18"
-            y="0"
-            width="36"
-            height="16"
-            fill="#c8ff00"
-            stroke="#a0cc00"
-            strokeWidth="2"
-            rx="3"
+            x="260"
+            y="380"
+            width="80"
+            height="25"
+            fill="rgba(200, 255, 0, 0.9)"
+            rx="5"
           />
 
-          {/* Car top */}
+          {/* Car Top/Cabin */}
           <path
-            d="M -12,0 L -8,-8 L 8,-8 L 12,0 Z"
-            fill="#a0cc00"
-            stroke="#88aa00"
-            strokeWidth="1.5"
+            d="M 275 380 L 285 360 L 315 360 L 325 380 Z"
+            fill="rgba(200, 255, 0, 0.7)"
+            stroke="rgba(200, 255, 0, 1)"
+            strokeWidth="2"
           />
 
           {/* Windows */}
-          <rect x="-10" y="-6" width="8" height="5" fill="#333" rx="1" />
-          <rect x="2" y="-6" width="8" height="5" fill="#333" rx="1" />
+          <rect
+            x="288"
+            y="365"
+            width="12"
+            height="12"
+            fill="rgba(255, 255, 255, 0.3)"
+            rx="2"
+          />
+          <rect
+            x="303"
+            y="365"
+            width="12"
+            height="12"
+            fill="rgba(255, 255, 255, 0.3)"
+            rx="2"
+          />
 
-          {/* Headlights */}
-          <circle cx="16" cy="4" r="2" fill="#ffffcc" opacity="0.9" />
-          <circle cx="16" cy="12" r="2" fill="#ff4444" opacity="0.8" />
+          {/* Headlight */}
+          <circle
+            cx="338"
+            cy="392"
+            r="4"
+            fill="rgba(255, 255, 100, 0.9)"
+          />
 
           {/* Wheels */}
-          <g>
-            {/* Front wheel */}
-            <circle cx="10" cy="16" r="4" fill="#222" stroke="#444" strokeWidth="1" />
-            <motion.circle
-              cx="10"
-              cy="16"
-              r="2"
-              fill="#666"
-              animate={isMoving ? { rotate: 360 } : {}}
-              transition={{
-                duration: 0.5,
-                repeat: isMoving ? Infinity : 0,
-                ease: "linear"
-              }}
-              style={{ originX: '10px', originY: '16px' }}
-            />
+          <motion.circle
+            cx="275"
+            cy="405"
+            r="8"
+            fill="rgba(50, 50, 50, 0.9)"
+            animate={{
+              rotate: isAnimating ? 360 : 0
+            }}
+            transition={{
+              duration: 0.5,
+              repeat: isAnimating ? Infinity : 0,
+              ease: "linear"
+            }}
+          />
+          <circle
+            cx="275"
+            cy="405"
+            r="4"
+            fill="rgba(150, 150, 150, 0.8)"
+          />
 
-            {/* Back wheel */}
-            <circle cx="-10" cy="16" r="4" fill="#222" stroke="#444" strokeWidth="1" />
-            <motion.circle
-              cx="-10"
-              cy="16"
-              r="2"
-              fill="#666"
-              animate={isMoving ? { rotate: 360 } : {}}
-              transition={{
-                duration: 0.5,
-                repeat: isMoving ? Infinity : 0,
-                ease: "linear"
-              }}
-              style={{ originX: '-10px', originY: '16px' }}
-            />
-          </g>
+          <motion.circle
+            cx="325"
+            cy="405"
+            r="8"
+            fill="rgba(50, 50, 50, 0.9)"
+            animate={{
+              rotate: isAnimating ? 360 : 0
+            }}
+            transition={{
+              duration: 0.5,
+              repeat: isAnimating ? Infinity : 0,
+              ease: "linear"
+            }}
+          />
+          <circle
+            cx="325"
+            cy="405"
+            r="4"
+            fill="rgba(150, 150, 150, 0.8)"
+          />
 
-          {/* Speed lines when moving */}
-          {isMoving && (
-            <>
-              <motion.line
-                x1="-25"
-                y1="6"
-                x2="-30"
-                y2="6"
-                stroke="#c8ff00"
-                strokeWidth="2"
-                strokeLinecap="round"
-                initial={{ opacity: 0 }}
-                animate={{ 
-                  opacity: [0, 1, 0],
-                  x1: [-25, -35],
-                  x2: [-30, -40]
-                }}
-                transition={{
-                  duration: 0.4,
-                  repeat: Infinity
-                }}
-              />
-              <motion.line
-                x1="-25"
-                y1="10"
-                x2="-28"
-                y2="10"
-                stroke="#c8ff00"
-                strokeWidth="2"
-                strokeLinecap="round"
-                initial={{ opacity: 0 }}
-                animate={{ 
-                  opacity: [0, 1, 0],
-                  x1: [-25, -32],
-                  x2: [-28, -35]
-                }}
-                transition={{
-                  duration: 0.4,
-                  repeat: Infinity,
-                  delay: 0.1
-                }}
-              />
-            </>
-          )}
+          {/* Shine effect */}
+          <motion.ellipse
+            cx="290"
+            cy="390"
+            rx="15"
+            ry="8"
+            fill="rgba(255, 255, 255, 0.3)"
+            animate={{
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity
+            }}
+          />
         </motion.g>
       </motion.g>
     </g>

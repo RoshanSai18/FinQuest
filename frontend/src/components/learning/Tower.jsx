@@ -1,180 +1,145 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Lock, CheckCircle } from 'lucide-react';
 
-const Tower = ({ module, isActive, isUnlocked, onClick }) => {
-  const x = module.position.x * 12;
-  const y = module.position.y * 8;
-  const height = 80;
-  const width = 50;
+const Tower = ({ module, index, isActive, onClick }) => {
+  const { position, locked, completed, title, icon } = module;
+
+  // Calculate SVG coordinates (percentage to SVG viewBox)
+  const x = (position.x / 100) * 2000;
+  const y = (position.y / 100) * 800;
 
   return (
     <g
-      style={{ cursor: isUnlocked ? 'pointer' : 'not-allowed' }}
-      onClick={isUnlocked ? onClick : undefined}
+      onClick={onClick}
+      style={{ cursor: locked ? 'not-allowed' : 'pointer' }}
+      className="tower-group"
     >
-      {/* Tower base platform */}
-      <ellipse
-        cx={x}
-        cy={y + height + 10}
-        rx={width / 2 + 5}
-        ry={8}
-        fill="#1a1a1a"
-        opacity="0.6"
-      />
-
-      {/* Tower body */}
+      {/* Tower Base Shadow */}
       <motion.rect
-        x={x - width / 2}
-        y={y + height}
-        width={width}
-        height={height}
-        fill={isUnlocked ? 'url(#towerGradient' + module.id + ')' : '#333'}
-        stroke={isActive ? '#c8ff00' : isUnlocked ? '#555' : '#222'}
-        strokeWidth="2"
-        rx="4"
-        initial={{ scaleY: 0, originY: 1 }}
-        animate={{ 
-          scaleY: 1,
-          y: isActive ? [y + height, y + height - 5, y + height] : y + height
-        }}
-        transition={{
-          scaleY: { duration: 0.6, delay: module.id * 0.2 },
-          y: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-        }}
-        whileHover={isUnlocked ? { 
-          scale: 1.05,
-          transition: { duration: 0.2 }
-        } : {}}
+        x={x - 55}
+        y={y + 100}
+        width="110"
+        height="15"
+        fill="rgba(0, 0, 0, 0.2)"
+        rx="8"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 0.5, scale: 1 }}
+        transition={{ delay: 0.5 + index * 0.2, type: "spring" }}
       />
 
-      {/* Tower gradient definition */}
-      <defs>
-        <linearGradient id={`towerGradient${module.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor={isUnlocked ? '#444' : '#222'} />
-          <stop offset="100%" stopColor={isUnlocked ? '#222' : '#111'} />
-        </linearGradient>
-      </defs>
-
-      {/* Tower windows */}
-      {isUnlocked && [0, 1, 2, 3].map((row) => (
-        <g key={row}>
-          {[0, 1].map((col) => (
-            <motion.rect
-              key={`${row}-${col}`}
-              x={x - width / 2 + 10 + col * 20}
-              y={y + height + 15 + row * 18}
-              width={8}
-              height={12}
-              fill={isActive ? '#c8ff00' : '#ffeb3b'}
-              opacity={isActive ? 0.9 : 0.4}
-              animate={isActive ? {
-                opacity: [0.9, 0.5, 0.9]
-              } : {}}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                delay: Math.random() * 2
-              }}
-            />
-          ))}
-        </g>
-      ))}
-
-      {/* Tower roof */}
-      <polygon
-        points={`
-          ${x},${y + height - 5}
-          ${x - width / 2 - 5},${y + height + 10}
-          ${x + width / 2 + 5},${y + height + 10}
-        `}
-        fill={isUnlocked ? '#c8ff00' : '#444'}
-        opacity={isActive ? 1 : 0.6}
-      />
-
-      {/* Glow effect for active tower */}
-      {isActive && (
-        <motion.ellipse
-          cx={x}
-          cy={y + height + height / 2}
-          rx={width / 2 + 10}
-          ry={height / 2 + 10}
-          fill="#c8ff00"
-          opacity={0.2}
-          animate={{
-            opacity: [0.2, 0.4, 0.2],
-            scale: [1, 1.1, 1]
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-      )}
-
-      {/* Lock icon for locked towers */}
-      {!isUnlocked && (
-        <g transform={`translate(${x}, ${y + height + 40})`}>
-          {/* Lock body */}
-          <rect x="-8" y="0" width="16" height="12" rx="2" fill="#666" />
-          {/* Lock shackle */}
-          <path
-            d="M -5,-8 Q -5,-15 0,-15 Q 5,-15 5,-8"
-            stroke="#666"
-            strokeWidth="3"
-            fill="none"
-            strokeLinecap="round"
-          />
-        </g>
-      )}
-
-      {/* Module icon */}
-      <text
-        x={x}
-        y={y + height - 15}
-        fontSize="24"
-        textAnchor="middle"
-        opacity={isUnlocked ? 1 : 0.3}
-      >
-        {module.icon}
-      </text>
-
-      {/* Module title (shown on hover) */}
+      {/* Tower Building */}
       <motion.g
-        initial={{ opacity: 0, y: -10 }}
-        whileHover={isUnlocked ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.2 }}
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.5 + index * 0.2, type: "spring", stiffness: 200 }}
+        whileHover={{ y: -5 }}
       >
+        {/* Main Tower Body */}
         <rect
-          x={x - 60}
-          y={y + height - 60}
-          width="120"
-          height="40"
-          fill="rgba(10, 10, 10, 0.95)"
-          stroke="#c8ff00"
-          strokeWidth="2"
-          rx="8"
+          x={x - 50}
+          y={y - 100}
+          width="100"
+          height="200"
+          fill={locked ? 'rgba(100, 100, 100, 0.3)' : 'rgba(200, 255, 0, 0.15)'}
+          stroke={locked ? 'rgba(150, 150, 150, 0.5)' : 'rgba(200, 255, 0, 0.5)'}
+          strokeWidth="3"
+          rx="10"
         />
-        <text
-          x={x}
-          y={y + height - 42}
-          fontSize="12"
-          fontWeight="bold"
-          textAnchor="middle"
-          fill="#c8ff00"
-        >
-          {module.title}
-        </text>
-        <text
-          x={x}
-          y={y + height - 28}
-          fontSize="9"
-          textAnchor="middle"
-          fill="#aaa"
-        >
-          {module.subtitle}
-        </text>
+
+        {/* Tower Windows */}
+        {[...Array(6)].map((_, i) => (
+          <rect
+            key={i}
+            x={x - 35 + (i % 2) * 40}
+            y={y - 80 + Math.floor(i / 2) * 40}
+            width="20"
+            height="25"
+            fill={locked ? 'rgba(150, 150, 150, 0.3)' : 'rgba(200, 255, 0, 0.3)'}
+            rx="3"
+          />
+        ))}
+
+        {/* Tower Roof */}
+        <polygon
+          points={`${x - 60},${y - 100} ${x},${y - 140} ${x + 60},${y - 100}`}
+          fill={locked ? 'rgba(120, 120, 120, 0.5)' : 'rgba(200, 255, 0, 0.4)'}
+          stroke={locked ? 'rgba(150, 150, 150, 0.5)' : 'rgba(200, 255, 0, 0.6)'}
+          strokeWidth="2"
+        />
+
+        {/* Glow effect for active tower */}
+        {isActive && !locked && (
+          <motion.circle
+            cx={x}
+            cy={y}
+            r="80"
+            fill="rgba(200, 255, 0, 0.1)"
+            filter="url(#glow)"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+        )}
       </motion.g>
+
+      {/* Icon/Emoji Display */}
+      <motion.text
+        x={x}
+        y={y - 30}
+        fontSize="40"
+        textAnchor="middle"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.8 + index * 0.2, type: "spring" }}
+        style={{ filter: locked ? 'grayscale(100%)' : 'none' }}
+      >
+        {icon}
+      </motion.text>
+
+      {/* Status Icon */}
+      {completed && (
+        <motion.g
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 1 + index * 0.2, type: "spring" }}
+        >
+          <circle cx={x + 35} cy={y - 90} r="15" fill="rgba(34, 197, 94, 0.9)" />
+          <foreignObject x={x + 25} y={y - 100} width="20" height="20">
+            <CheckCircle className="w-5 h-5 text-white" />
+          </foreignObject>
+        </motion.g>
+      )}
+
+      {locked && (
+        <motion.g
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 1 + index * 0.2, type: "spring" }}
+        >
+          <circle cx={x + 35} cy={y - 90} r="15" fill="rgba(150, 150, 150, 0.9)" />
+          <foreignObject x={x + 26} y={y - 99} width="18" height="18">
+            <Lock className="w-4 h-4 text-white" />
+          </foreignObject>
+        </motion.g>
+      )}
+
+      {/* Tower Label */}
+      <motion.text
+        x={x}
+        y={y + 130}
+        fontSize="18"
+        fontWeight="bold"
+        fill={locked ? 'rgba(150, 150, 150, 0.8)' : 'rgba(255, 255, 255, 0.9)'}
+        textAnchor="middle"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 + index * 0.2 }}
+      >
+        {title}
+      </motion.text>
     </g>
   );
 };

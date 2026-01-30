@@ -1,103 +1,155 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const DecorativeElements = ({ modules }) => {
-  // Generate trees between modules
-  const renderTree = (x, y, index) => (
-    <g key={`tree-${index}`} transform={`translate(${x * 12}, ${y * 8 + 120})`}>
-      {/* Tree trunk */}
-      <rect x="-3" y="0" width="6" height="20" fill="#3d2817" rx="2" />
-      
-      {/* Tree foliage */}
-      <motion.g
-        animate={{
-          y: [0, -3, 0]
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: index * 0.3
-        }}
-      >
-        <circle cx="0" cy="-8" r="12" fill="#2d5016" />
-        <circle cx="-8" cy="-3" r="10" fill="#2d5016" />
-        <circle cx="8" cy="-3" r="10" fill="#2d5016" />
-        <circle cx="0" cy="-15" r="8" fill="#3d6b1f" />
-      </motion.g>
-    </g>
-  );
+const DecorativeElements = () => {
+  // Tree positions along the road
+  const trees = [
+    { x: 200, y: 550 },
+    { x: 500, y: 520 },
+    { x: 850, y: 540 },
+    { x: 1100, y: 560 },
+    { x: 1400, y: 550 },
+    { x: 1700, y: 570 }
+  ];
 
-  // Generate bushes
-  const renderBush = (x, y, index) => (
-    <g key={`bush-${index}`} transform={`translate(${x * 12}, ${y * 8 + 130})`}>
-      <ellipse cx="0" cy="0" rx="15" ry="10" fill="#1a3a1a" />
-      <ellipse cx="-8" cy="-2" rx="10" ry="8" fill="#1a3a1a" />
-      <ellipse cx="8" cy="-2" rx="10" ry="8" fill="#1a3a1a" />
-    </g>
-  );
-
-  // Generate street lamps
-  const renderLamp = (x, y, index) => (
-    <g key={`lamp-${index}`} transform={`translate(${x * 12}, ${y * 8 + 90})`}>
-      {/* Lamp post */}
-      <rect x="-1" y="0" width="2" height="40" fill="#444" />
-      
-      {/* Lamp head */}
-      <rect x="-6" y="-5" width="12" height="8" fill="#333" rx="2" />
-      
-      {/* Light glow */}
-      <motion.circle
-        cx="0"
-        cy="0"
-        r="8"
-        fill="#c8ff00"
-        opacity="0.3"
-        animate={{
-          opacity: [0.3, 0.6, 0.3],
-          r: [8, 10, 8]
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: index * 0.5
-        }}
-      />
-      
-      {/* Light bulb */}
-      <circle cx="0" cy="0" r="3" fill="#ffeb3b" opacity="0.9" />
-    </g>
-  );
+  // Cloud positions
+  const clouds = [
+    { x: 300, y: 150, scale: 1 },
+    { x: 800, y: 100, scale: 1.2 },
+    { x: 1400, y: 180, scale: 0.9 },
+    { x: 1800, y: 120, scale: 1.1 }
+  ];
 
   return (
     <g id="decorative-elements">
-      {/* Trees scattered around */}
-      {modules.map((module, i) => (
-        <React.Fragment key={`decorations-${i}`}>
-          {/* Tree before each module */}
-          {renderTree(module.position.x - 8, module.position.y + 3, i * 3)}
+      {/* Trees */}
+      {trees.map((tree, index) => (
+        <motion.g
+          key={`tree-${index}`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 + index * 0.1 }}
+        >
+          {/* Tree trunk */}
+          <rect
+            x={tree.x - 5}
+            y={tree.y - 30}
+            width="10"
+            height="30"
+            fill="rgba(139, 69, 19, 0.6)"
+            rx="2"
+          />
           
-          {/* Tree after each module */}
-          {renderTree(module.position.x + 8, module.position.y + 2, i * 3 + 1)}
-          
-          {/* Bush */}
-          {renderBush(module.position.x - 5, module.position.y + 5, i * 2)}
-          
-          {/* Street lamp */}
-          {i < modules.length - 1 && renderLamp(
-            (module.position.x + modules[i + 1].position.x) / 2,
-            (module.position.y + modules[i + 1].position.y) / 2,
-            i
-          )}
-        </React.Fragment>
+          {/* Tree foliage */}
+          <motion.circle
+            cx={tree.x}
+            cy={tree.y - 40}
+            r="20"
+            fill="rgba(34, 197, 94, 0.3)"
+            animate={{
+              scale: [1, 1.05, 1]
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              delay: index * 0.5
+            }}
+          />
+          <circle
+            cx={tree.x - 10}
+            cy={tree.y - 35}
+            r="15"
+            fill="rgba(34, 197, 94, 0.25)"
+          />
+          <circle
+            cx={tree.x + 10}
+            cy={tree.y - 35}
+            r="15"
+            fill="rgba(34, 197, 94, 0.25)"
+          />
+        </motion.g>
       ))}
 
-      {/* Additional random trees */}
-      {renderTree(10, 68, 100)}
-      {renderTree(95, 63, 101)}
-      {renderBush(5, 70, 50)}
-      {renderBush(98, 68, 51)}
+      {/* Clouds */}
+      {clouds.map((cloud, index) => (
+        <motion.g
+          key={`cloud-${index}`}
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ 
+            opacity: 0.4, 
+            x: cloud.x,
+            y: [0, -10, 0]
+          }}
+          transition={{
+            opacity: { delay: 0.5 + index * 0.2, duration: 1 },
+            x: { delay: 0.5 + index * 0.2, duration: 1 },
+            y: { 
+              duration: 4 + index,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }
+          }}
+        >
+          <ellipse
+            cx={0}
+            cy={cloud.y}
+            rx={30 * cloud.scale}
+            ry={15 * cloud.scale}
+            fill="rgba(255, 255, 255, 0.1)"
+          />
+          <ellipse
+            cx={-15 * cloud.scale}
+            cy={cloud.y}
+            rx={20 * cloud.scale}
+            ry={12 * cloud.scale}
+            fill="rgba(255, 255, 255, 0.08)"
+          />
+          <ellipse
+            cx={15 * cloud.scale}
+            cy={cloud.y}
+            rx={20 * cloud.scale}
+            ry={12 * cloud.scale}
+            fill="rgba(255, 255, 255, 0.08)"
+          />
+        </motion.g>
+      ))}
+
+      {/* Birds */}
+      {[...Array(3)].map((_, i) => (
+        <motion.g
+          key={`bird-${i}`}
+          initial={{ x: -100, y: 200 + i * 80 }}
+          animate={{
+            x: [0, 2000],
+            y: [200 + i * 80, 180 + i * 80, 200 + i * 80]
+          }}
+          transition={{
+            x: { duration: 20 + i * 5, repeat: Infinity, ease: "linear" },
+            y: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+          }}
+        >
+          {/* Simple bird shape */}
+          <path
+            d="M 0 0 Q -5 -3, -10 0 Q -5 3, 0 0 Q 5 -3, 10 0 Q 5 3, 0 0"
+            fill="rgba(200, 255, 0, 0.4)"
+          />
+        </motion.g>
+      ))}
+
+      {/* Small bushes */}
+      {[...Array(8)].map((_, i) => (
+        <motion.ellipse
+          key={`bush-${i}`}
+          cx={250 + i * 220}
+          cy={600}
+          rx="25"
+          ry="15"
+          fill="rgba(34, 197, 94, 0.2)"
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.5 + i * 0.1, type: "spring" }}
+        />
+      ))}
     </g>
   );
 };

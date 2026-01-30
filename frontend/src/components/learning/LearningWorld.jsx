@@ -1,150 +1,153 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Zap } from 'lucide-react';
+import { X, SkipForward, Award } from 'lucide-react';
 import CityMap from './CityMap';
-import ChapterTransition from './ChapterTransition';
 import UIOverlay from './UIOverlay';
+import ChapterTransition from './ChapterTransition';
 
-const LearningWorld = ({ onBack }) => {
+const LearningWorld = ({ onClose }) => {
   const [currentModule, setCurrentModule] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [selectedChapter, setSelectedChapter] = useState(null);
-  const [skipAnimation, setSkipAnimation] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [showChapter, setShowChapter] = useState(false);
+  const [selectedModule, setSelectedModule] = useState(null);
 
-  // Define learning modules
+  // Module data
   const modules = [
     {
       id: 0,
       title: 'Budget Basics',
-      subtitle: 'Master the fundamentals',
+      description: 'Master the fundamentals of budgeting',
+      icon: '💰',
+      completed: true,
       locked: false,
-      position: { x: 15, y: 60 },
-      color: 'from-blue-500 to-blue-600',
-      icon: '💰'
+      position: { x: 15, y: 50 }
     },
     {
       id: 1,
       title: 'Saving Strategies',
-      subtitle: 'Build your safety net',
+      description: 'Learn effective saving techniques',
+      icon: '🏦',
+      completed: false,
       locked: false,
-      position: { x: 35, y: 55 },
-      color: 'from-green-500 to-green-600',
-      icon: '🏦'
+      position: { x: 35, y: 45 }
     },
     {
       id: 2,
       title: 'Investing 101',
-      subtitle: 'Grow your wealth',
-      locked: currentModule < 1,
-      position: { x: 60, y: 50 },
-      color: 'from-purple-500 to-purple-600',
-      icon: '📈'
+      description: 'Begin your investment journey',
+      icon: '📈',
+      completed: false,
+      locked: false,
+      position: { x: 60, y: 48 }
     },
     {
       id: 3,
       title: 'Taxes & Credit',
-      subtitle: 'Optimize your finances',
-      locked: currentModule < 2,
-      position: { x: 85, y: 55 },
-      color: 'from-orange-500 to-orange-600',
-      icon: '📊'
+      description: 'Understand taxes and credit scores',
+      icon: '📊',
+      completed: false,
+      locked: true,
+      position: { x: 85, y: 52 }
     }
   ];
 
-  // Handle tower click
-  const handleTowerClick = (moduleId) => {
-    const module = modules[moduleId];
-    if (module.locked) return;
-
-    setIsTransitioning(true);
+  // Handle module click
+  const handleModuleClick = (moduleId) => {
+    const module = modules.find(m => m.id === moduleId);
+    if (module.locked || isAnimating) return;
     
-    // After car animation completes, show chapter
-    const animationTime = skipAnimation ? 500 : 2000;
+    setIsAnimating(true);
+    setCurrentModule(moduleId);
+    setSelectedModule(module);
+
+    // After car reaches destination, show chapter
     setTimeout(() => {
-      setSelectedChapter(module);
-      setIsTransitioning(false);
-    }, animationTime);
+      setIsAnimating(false);
+      setShowChapter(true);
+    }, 2000);
   };
 
-  // Handle chapter completion
-  const handleChapterComplete = () => {
-    setSelectedChapter(null);
-    // Unlock next module
-    if (currentModule < modules.length - 1) {
-      setCurrentModule(currentModule + 1);
+  // Skip animation
+  const handleSkipAnimation = () => {
+    if (isAnimating) {
+      setIsAnimating(false);
+      setShowChapter(true);
     }
   };
 
-  // Calculate completion percentage
-  const completionPercentage = ((currentModule + 1) / modules.length) * 100;
+  // Return to city
+  const handleReturnToCity = () => {
+    setShowChapter(false);
+    setSelectedModule(null);
+  };
+
+  // Calculate progress
+  const progress = Math.round((modules.filter(m => m.completed).length / modules.length) * 100);
 
   return (
-    <div className="min-h-screen bg-dark text-white relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-sky-900/20 via-dark to-dark pointer-events-none" />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] bg-dark"
+    >
+      {/* Close Button */}
+      <motion.button
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        onClick={onClose}
+        className="absolute top-6 right-6 z-50 p-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 hover:border-primary/50 transition-all backdrop-blur-sm"
+        aria-label="Close Learning World"
+      >
+        <X className="w-6 h-6" />
+      </motion.button>
 
+      {/* Skip Animation Button */}
+      <AnimatePresence>
+        {isAnimating && (
+          <motion.button
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            onClick={handleSkipAnimation}
+            className="absolute top-6 right-24 z-50 px-4 py-2 rounded-full bg-primary/20 hover:bg-primary/30 border border-primary/50 transition-all backdrop-blur-sm flex items-center gap-2"
+          >
+            <SkipForward className="w-4 h-4" />
+            <span className="text-sm font-bold">Skip</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Progress Overlay */}
+      <UIOverlay progress={progress} />
+
+      {/* Main Content */}
       <AnimatePresence mode="wait">
-        {!selectedChapter ? (
+        {!showChapter ? (
           <motion.div
             key="city"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="relative z-10"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.5 }}
+            className="w-full h-full"
           >
-            {/* Header */}
-            <div className="absolute top-0 left-0 right-0 z-50 px-8 py-6 flex items-center justify-between">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onBack}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span className="font-bold">Back</span>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setSkipAnimation(!skipAnimation)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border backdrop-blur-md transition-all ${
-                  skipAnimation 
-                    ? 'bg-primary/20 border-primary/50 text-primary' 
-                    : 'bg-white/10 border-white/20 hover:bg-white/20'
-                }`}
-              >
-                <Zap className="w-4 h-4" />
-                <span className="font-bold text-sm">Quick Mode</span>
-              </motion.button>
-            </div>
-
-            {/* UI Overlay */}
-            <UIOverlay 
-              modules={modules}
-              currentModule={currentModule}
-              completionPercentage={completionPercentage}
-            />
-
-            {/* City Map */}
             <CityMap
               modules={modules}
               currentModule={currentModule}
-              onTowerClick={handleTowerClick}
-              isTransitioning={isTransitioning}
-              skipAnimation={skipAnimation}
+              isAnimating={isAnimating}
+              onModuleClick={handleModuleClick}
             />
           </motion.div>
         ) : (
           <ChapterTransition
             key="chapter"
-            chapter={selectedChapter}
-            onBack={() => setSelectedChapter(null)}
-            onComplete={handleChapterComplete}
+            module={selectedModule}
+            onReturn={handleReturnToCity}
           />
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };
 

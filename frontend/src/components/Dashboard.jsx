@@ -15,7 +15,7 @@ import LearningWorld from './learning/LearningWorld';
 const Dashboard = ({ user, onLogout }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [hoveredCircle, setHoveredCircle] = useState(null);
-  const [activeView, setActiveView] = useState(null); // null, 'learn', 'tracker', 'profile'
+  const [showLearning, setShowLearning] = useState(false);
 
   const actionCircles = [
     {
@@ -33,7 +33,7 @@ const Dashboard = ({ user, onLogout }) => {
       gradient: 'from-primary/20 via-primary/10 to-transparent'
     },
     {
-      id: 'profile',
+      id: 'whefile',
       label: 'Profile',
       icon: User,
       description: 'Manage your account',
@@ -42,62 +42,32 @@ const Dashboard = ({ user, onLogout }) => {
   ];
 
   const handleCircleClick = (id) => {
-    setActiveView(id);
+    console.log(`Navigating to: ${id}`);
+    if (id === 'learn') {
+      setShowLearning(true);
+    }
+    // TODO: Add navigation logic for other circles
   };
 
-  // If a view is active, render that view
-  if (activeView === 'learn') {
-    return <LearningWorld onBack={() => setActiveView(null)} />;
-  }
-
-  if (activeView === 'tracker') {
-    // TODO: Implement Expense Tracker view
-    return (
-      <div className="min-h-screen bg-dark text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">Expense Tracker</h1>
-          <p className="text-gray-400 mb-6">Coming soon...</p>
-          <button
-            onClick={() => setActiveView(null)}
-            className="px-6 py-3 bg-primary text-dark rounded-lg font-bold"
-          >
-            Back to Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (activeView === 'profile') {
-    // TODO: Implement Profile view
-    return (
-      <div className="min-h-screen bg-dark text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">Profile</h1>
-          <p className="text-gray-400 mb-6">Coming soon...</p>
-          <button
-            onClick={() => setActiveView(null)}
-            className="px-6 py-3 bg-primary text-dark rounded-lg font-bold"
-          >
-            Back to Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-dark text-white relative overflow-hidden">
-      {/* Ambient Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      </div>
+    <>
+      <AnimatePresence>
+        {showLearning && (
+          <LearningWorld onClose={() => setShowLearning(false)} />
+        )}
+      </AnimatePresence>
 
-      {/* Header */}
-      <motion.header
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+      <div className="min-h-screen bg-dark text-white relative overflow-hidden">
+        {/* Ambient Background Effects */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        </div>
+
+        {/* Header */}
+        <motion.header
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
         className="relative z-10 px-8 py-6 flex items-center justify-between"
       >
         {/* Logo */}
@@ -343,7 +313,8 @@ const Dashboard = ({ user, onLogout }) => {
           )}
         </motion.button>
       </motion.div>
-    </div>
+      </div>
+    </>
   );
 };
 

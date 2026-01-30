@@ -1,185 +1,132 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, CheckCircle, BookOpen, Clock } from 'lucide-react';
+import { ArrowLeft, Play, BookOpen, Clock } from 'lucide-react';
 
-const ChapterTransition = ({ chapter, onBack, onComplete }) => {
-  const [currentLesson, setCurrentLesson] = useState(0);
-
-  // Sample lesson content
-  const lessons = [
-    {
-      title: 'Introduction',
-      content: `Welcome to ${chapter.title}! In this module, you'll learn the essential concepts that will help you master this financial topic.`,
-      duration: '5 min read'
-    },
-    {
-      title: 'Core Concepts',
-      content: 'Understanding the fundamentals is crucial. Let\'s break down the key principles step by step.',
-      duration: '10 min read'
-    },
-    {
-      title: 'Practical Examples',
-      content: 'Now let\'s see how these concepts apply to real-world scenarios you might encounter.',
-      duration: '8 min read'
-    },
-    {
-      title: 'Quick Quiz',
-      content: 'Test your knowledge with a quick quiz to reinforce what you\'ve learned!',
-      duration: '5 min'
-    }
-  ];
-
-  const handleNext = () => {
-    if (currentLesson < lessons.length - 1) {
-      setCurrentLesson(currentLesson + 1);
-    } else {
-      onComplete();
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentLesson > 0) {
-      setCurrentLesson(currentLesson - 1);
-    }
-  };
+const ChapterTransition = ({ module, onReturn }) => {
+  if (!module) return null;
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="min-h-screen bg-dark flex items-center justify-center p-8"
+      exit={{ opacity: 0, scale: 0.9 }}
+      className="w-full h-full flex items-center justify-center p-8"
     >
-      <div className="max-w-4xl w-full">
-        {/* Chapter intro header */}
+      <div className="max-w-3xl w-full">
+        {/* Return Button */}
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={onReturn}
+          className="mb-8 flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 hover:border-primary/50 transition-all backdrop-blur-sm"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-base font-bold">Back to City</span>
+        </motion.button>
+
+        {/* Chapter Card */}
         <motion.div
-          initial={{ y: -20, opacity: 0 }}
+          initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-center mb-12"
+          className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-10 shadow-2xl"
         >
+          {/* Module Icon */}
           <motion.div
-            className="text-6xl mb-4"
-            animate={{
-              scale: [1, 1.1, 1],
-              rotate: [0, 5, -5, 0]
-            }}
-            transition={{ duration: 0.6 }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+            className="text-8xl mb-6 text-center"
           >
-            {chapter.icon}
+            {module.icon}
           </motion.div>
-          
-          <h1 className="text-5xl font-extrabold mb-3 text-white">
-            {chapter.title}
-          </h1>
-          
-          <p className="text-xl text-gray-400 font-semibold mb-6">
-            {chapter.subtitle}
-          </p>
 
-          {/* Progress bar */}
-          <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-bold text-gray-400">
-                Lesson {currentLesson + 1} of {lessons.length}
-              </span>
-              <span className="text-sm font-bold text-primary">
-                {Math.round(((currentLesson + 1) / lessons.length) * 100)}%
-              </span>
-            </div>
-            <div className="w-full bg-white/10 rounded-full h-2">
-              <motion.div
-                className="h-full bg-primary rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${((currentLesson + 1) / lessons.length) * 100}%` }}
-                transition={{ duration: 0.5 }}
-              />
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Lesson content card */}
-        <motion.div
-          key={currentLesson}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-3xl p-10 mb-8"
-        >
-          {/* Lesson header */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-extrabold text-white mb-1">
-                {lessons[currentLesson].title}
-              </h2>
-              <div className="flex items-center gap-2 text-sm text-gray-400 font-medium">
-                <Clock className="w-4 h-4" />
-                <span>{lessons[currentLesson].duration}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Lesson content */}
-          <div className="prose prose-invert max-w-none">
-            <p className="text-lg text-gray-300 leading-relaxed font-medium">
-              {lessons[currentLesson].content}
-            </p>
-          </div>
-
-          {/* Placeholder for actual content */}
-          <div className="mt-8 p-6 bg-white/5 border border-white/10 rounded-xl">
-            <p className="text-gray-400 text-center font-semibold">
-              📚 Lesson content will be loaded here
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Navigation buttons */}
-        <div className="flex items-center justify-between gap-4">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={onBack}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 transition-all font-bold"
+          {/* Module Title */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-5xl font-extrabold text-center mb-4 bg-gradient-to-r from-white to-primary bg-clip-text text-transparent"
           >
-            <ArrowLeft className="w-5 h-5" />
-            Back to City
-          </motion.button>
+            {module.title}
+          </motion.h1>
 
-          <div className="flex gap-3">
-            {currentLesson > 0 && (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handlePrevious}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 transition-all font-bold"
-              >
-                Previous
-              </motion.button>
-            )}
+          {/* Module Description */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-xl text-center text-gray-300 font-semibold mb-8"
+          >
+            {module.description}
+          </motion.p>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleNext}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-dark transition-all font-bold"
-            >
-              {currentLesson === lessons.length - 1 ? (
-                <>
-                  <CheckCircle className="w-5 h-5" />
-                  Complete Module
-                </>
-              ) : (
-                <>
-                  Next Lesson
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
-            </motion.button>
-          </div>
+          {/* Module Info */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="flex items-center justify-center gap-8 mb-10 text-gray-400"
+          >
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5" />
+              <span className="text-base font-semibold">5 Lessons</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              <span className="text-base font-semibold">~30 mins</span>
+            </div>
+          </motion.div>
+
+          {/* Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <button className="group relative px-8 py-4 text-lg font-extrabold bg-primary text-dark rounded-xl hover:bg-primary/90 transition-all duration-300 shadow-lg shadow-primary/40 hover:shadow-primary/60 flex items-center justify-center gap-3">
+              <Play className="w-6 h-6 group-hover:scale-110 transition-transform" />
+              Start Learning
+            </button>
+
+            <button className="px-8 py-4 text-lg font-bold bg-white/10 hover:bg-white/20 border-2 border-white/30 hover:border-primary/50 rounded-xl transition-all backdrop-blur-sm">
+              View Syllabus
+            </button>
+          </motion.div>
+
+          {/* Progress Indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="mt-8 text-center"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full">
+              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+              <span className="text-sm font-bold text-primary">Ready to begin</span>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.2, 0.1]
+            }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1.2, 1, 1.2],
+              opacity: [0.1, 0.2, 0.1]
+            }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
+          />
         </div>
       </div>
     </motion.div>
