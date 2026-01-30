@@ -32,11 +32,11 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 // @route   GET /auth/google/callback
 // Google redirects here after user consents
 router.get('/google/callback', 
-    passport.authenticate('google', { failureRedirect: 'http://localhost:3000/login' }),
+    passport.authenticate('google', { failureRedirect: 'http://localhost:3000' }),
     (req, res) => {
         // Successful authentication!
-        // Redirect the user back to the React Frontend Dashboard
-        res.redirect('http://localhost:3000/dashboard');
+        // Redirect the user back to the React Frontend (will show Dashboard automatically)
+        res.redirect('http://localhost:3000');
     }
 );
 
@@ -60,7 +60,11 @@ router.get('/logout', (req, res, next) => {
 // Frontend calls this to check if user is logged in
 router.get('/current_user', (req, res) => {
     // req.user is attached by Passport if the session is valid
-    res.send(req.user);
+    if (req.user) {
+        res.json(req.user);
+    } else {
+        res.json({});
+    }
 });
 
 module.exports = router;

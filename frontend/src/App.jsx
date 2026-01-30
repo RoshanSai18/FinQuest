@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars, react/no-unescaped-entities, react/prop-types */
+﻿/* eslint-disable no-unused-vars, react/no-unescaped-entities */
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -46,6 +46,7 @@ import Globe from './Globe';
 import { TiltCard } from './components/ui/tilt-card';
 import { TubeLightNavBar } from './components/ui/tubelight-navbar';
 import { triggerConfetti, smoothScrollTo } from './lib/utils';
+import Dashboard from './components/Dashboard';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,6 +56,30 @@ function App() {
   const [scrolled, setScrolled] = useState(false);
   const [isCalculatorModalOpen, setIsCalculatorModalOpen] = useState(false);
   const [activeNavItem, setActiveNavItem] = useState('features');
+  const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/auth/current_user', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (data && data._id) {
+          setUser(data);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      }
+    };
+    checkAuth();
+  }, []);
 
   // Handle scroll for navbar background
   useEffect(() => {
@@ -70,16 +95,65 @@ function App() {
     setIsLoading(false);
   };
 
+  // Handle form input changes
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // Handle Google Login
+  const handleGoogleLogin = () => {
+    // Redirect to backend Google OAuth route
+    window.location.href = 'http://localhost:5000/auth/google';
+  };
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:5000/auth/logout', {
+        credentials: 'include'
+      });
+      setUser(null);
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   // Handle auth form submission
-  const handleAuthSubmit = (e) => {
+  const handleAuthSubmit = async (e) => {
     e.preventDefault();
-    if (authMode === 'signup') {
-      triggerConfetti();
-      setTimeout(() => {
-        setIsAuthModalOpen(false);
-      }, 2000);
-    } else {
-      setIsAuthModalOpen(false);
+    
+    try {
+      const endpoint = authMode === 'signup' ? '/auth/register' : '/auth/login';
+      const response = await fetch(`http://localhost:5000${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data);
+        if (authMode === 'signup') {
+          triggerConfetti();
+        }
+        setTimeout(() => {
+          setIsAuthModalOpen(false);
+          setFormData({ name: '', email: '', password: '' });
+        }, authMode === 'signup' ? 2000 : 500);
+      } else {
+        alert(data.message || 'Authentication failed');
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+      alert('An error occurred. Please try again.');
     }
   };
 
@@ -88,6 +162,11 @@ function App() {
     { name: 'How It Works', label: 'How It Works', href: '#how-it-works', icon: Zap },
     { name: 'Integrations', label: 'Integrations', href: '#integrations', icon: Layers },
   ];
+
+  // If user is authenticated, show Dashboard
+  if (!isLoading && user) {
+    return <Dashboard user={user} onLogout={handleLogout} />;
+  }
 
   return (
     <>
@@ -859,8 +938,8 @@ function App() {
     </>
   )}
 </AnimatePresence>
-</div>
-      )
+        </div>
+      )}
 
       {/* Financial Calculator Modal - Outside loading check */}
       <FinancialCalculatorModal
