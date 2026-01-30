@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
  */
 export function TubeLightNavBar({ items, className, activeItem, onItemClick }) {
   const [activeTab, setActiveTab] = useState(items[0]?.name || '');
+  const [hoveredTab, setHoveredTab] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -43,11 +44,15 @@ export function TubeLightNavBar({ items, className, activeItem, onItemClick }) {
       {items.map((item) => {
         const Icon = item.icon;
         const isActive = activeTab === item.name;
+        const isHovered = hoveredTab === item.name;
+        const showTorch = isActive || isHovered;
 
         return (
           <button
             key={item.name}
             onClick={() => handleClick(item)}
+            onMouseEnter={() => setHoveredTab(item.name)}
+            onMouseLeave={() => setHoveredTab(null)}
             className={cn(
               "relative cursor-pointer text-sm font-medium px-6 py-2.5 rounded-full transition-all duration-300 group",
               "text-gray-300 hover:text-white",
@@ -67,7 +72,7 @@ export function TubeLightNavBar({ items, className, activeItem, onItemClick }) {
                 />
               </span>
             )}
-            {isActive && (
+            {showTorch && (
               <motion.div
                 layoutId="lamp"
                 className="absolute inset-0 w-full bg-gradient-to-r from-primary/15 via-primary/25 to-primary/15 rounded-full border border-primary/20"
