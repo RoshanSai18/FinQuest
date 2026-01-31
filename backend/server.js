@@ -52,6 +52,8 @@ app.use(passport.session());
 // 8. Routes
 app.use('/auth', require('./routes/authRoutes'));
 app.use('/api/advisor', require('./routes/advisorRoutes'));
+app.use('/api/expenses', require('./routes/expenseRoutes'));
+app.use('/api/goals', require('./routes/goalRoutes'));
 // app.use('/api/users', require('./routes/userRoutes')); // We'll add this later for register/login
 
 const PORT = process.env.PORT || 5000;

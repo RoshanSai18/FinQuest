@@ -10,11 +10,13 @@ import {
 import { GradientText } from './UIComponents';
 import LearningWorld from './learning/LearningWorld';
 import AdvisorModal from './AdvisorModal';
+import ExpenseTrackerHub from './ExpenseTrackerHub';
 
 const Dashboard = ({ user, onLogout }) => {
   const [hoveredCircle, setHoveredCircle] = useState(null);
   const [showLearning, setShowLearning] = useState(false);
   const [showAdvisor, setShowAdvisor] = useState(false);
+  const [showExpenseTracker, setShowExpenseTracker] = useState(false);
 
   const actionCircles = [
     {
@@ -46,8 +48,9 @@ const Dashboard = ({ user, onLogout }) => {
       setShowLearning(true);
     } else if (id === 'whefile') {
       setShowAdvisor(true);
+    } else if (id === 'tracker') {
+      setShowExpenseTracker(true);
     }
-    // TODO: Add navigation logic for tracker
   };
 
   return (
@@ -60,6 +63,13 @@ const Dashboard = ({ user, onLogout }) => {
           <AdvisorModal 
             isOpen={showAdvisor} 
             onClose={() => setShowAdvisor(false)} 
+            user={user}
+          />
+        )}
+        {showExpenseTracker && (
+          <ExpenseTrackerHub
+            isOpen={showExpenseTracker}
+            onClose={() => setShowExpenseTracker(false)}
             user={user}
           />
         )}
