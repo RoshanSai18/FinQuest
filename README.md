@@ -26,6 +26,7 @@ A cutting-edge fintech web application designed to help modern Indian households
 - Node.js (v18 or higher)
 - MongoDB (running locally or remote)
 - Google OAuth credentials
+- **Perplexity API Key** (for AI Financial Advisor) - Get it from [Perplexity Settings](https://www.perplexity.ai/settings/api)
 
 ### 1. Backend Setup
 
@@ -35,7 +36,12 @@ npm install
 
 # Create .env file from example
 cp .env.example .env
-# Edit .env and add your credentials
+# Edit .env and add your credentials:
+# - MONGODB_URI (your MongoDB connection string)
+# - GOOGLE_CLIENT_ID (from Google Cloud Console)
+# - GOOGLE_CLIENT_SECRET (from Google Cloud Console)
+# - SESSION_SECRET (any random string)
+# - PERPLEXITY_API_KEY (from Perplexity Settings - REQUIRED for Advisor feature)
 
 # Start the server
 npm start
@@ -64,6 +70,12 @@ See [SETUP_GUIDE.md](SETUP_GUIDE.md) for detailed instructions on setting up Goo
 - **User Session Management** - Persistent sessions
 - **Responsive Design** - Mobile-first approach
 - **Sample Financial Dashboard** with stats, transactions, and goals
+- **🤖 AI Financial Advisor** - Powered by Perplexity AI
+  - Comprehensive financial health analysis
+  - Personalized investment strategies
+  - Conversational chat assistant with financial context
+  - Multi-user support with database persistence
+  - Indian financial context (₹, Lakhs, Crores)
 
 ### 🚧 Planned
 - What-If Financial Simulator
@@ -97,6 +109,37 @@ finquest/
 3. Session created and stored
 4. User redirected to Dashboard
 5. Dashboard displays user financial data
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in the `backend/` directory with:
+
+```env
+# Database
+MONGODB_URI=mongodb://localhost:27017/finquest
+
+# Server
+PORT=5000
+NODE_ENV=development
+
+# Session
+SESSION_SECRET=your_random_secret_key_here
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# AI Financial Advisor (REQUIRED)
+PERPLEXITY_API_KEY=your_perplexity_api_key_here
+```
+
+**📌 Getting your Perplexity API Key:**
+1. Visit [Perplexity Settings](https://www.perplexity.ai/settings/api)
+2. Sign in with your account
+3. Navigate to API section
+4. Click "Generate API Key"
+5. Copy the generated key and add it to your `.env` file
+6. The server will validate this key on startup and fail with a clear error if missing
 
 ## 📚 Documentation
 

@@ -30,6 +30,29 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'https://via.placeholder.com/150'
     },
+    financialProfile: {
+        monthlyIncome: Number,
+        incomeSource: String,
+        monthlyExpenses: Number,
+        totalDebt: Number,
+        debtBreakdown: {
+            homeLoan: Number,
+            carLoan: Number,
+            personalLoan: Number,
+            creditCard: Number
+        },
+        investments: {
+            equity: Number,
+            debt: Number,
+            gold: Number,
+            realEstate: Number,
+            ppf: Number,
+            otherAssets: Number
+        },
+        age: Number,
+        dependents: Number,
+        lastAnalyzed: Date
+    },
     createdAt: {
         type: Date,
         default: Date.now

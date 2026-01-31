@@ -9,10 +9,12 @@ import {
 } from 'lucide-react';
 import { GradientText } from './UIComponents';
 import LearningWorld from './learning/LearningWorld';
+import AdvisorModal from './AdvisorModal';
 
 const Dashboard = ({ user, onLogout }) => {
   const [hoveredCircle, setHoveredCircle] = useState(null);
   const [showLearning, setShowLearning] = useState(false);
+  const [showAdvisor, setShowAdvisor] = useState(false);
 
   const actionCircles = [
     {
@@ -42,8 +44,10 @@ const Dashboard = ({ user, onLogout }) => {
     console.log(`Navigating to: ${id}`);
     if (id === 'learn') {
       setShowLearning(true);
+    } else if (id === 'whefile') {
+      setShowAdvisor(true);
     }
-    // TODO: Add navigation logic for other circles
+    // TODO: Add navigation logic for tracker
   };
 
   return (
@@ -51,6 +55,13 @@ const Dashboard = ({ user, onLogout }) => {
       <AnimatePresence>
         {showLearning && (
           <LearningWorld onClose={() => setShowLearning(false)} />
+        )}
+        {showAdvisor && (
+          <AdvisorModal 
+            isOpen={showAdvisor} 
+            onClose={() => setShowAdvisor(false)} 
+            user={user}
+          />
         )}
       </AnimatePresence>
 
