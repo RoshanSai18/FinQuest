@@ -50,8 +50,11 @@ router.get('/google/callback',
 router.get('/logout', (req, res, next) => {
     req.logout((err) => {
         if (err) { return next(err); }
-        // Redirect back to landing page after logout
-        res.redirect('http://localhost:3000/');
+        req.session.destroy((err) => {
+            if (err) { return next(err); }
+            res.clearCookie('connect.sid');
+            res.json({ success: true, message: 'Logged out successfully' });
+        });
     });
 });
 

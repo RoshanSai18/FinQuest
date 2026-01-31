@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Receipt, TrendingUp, Target } from 'lucide-react';
+import { X, Receipt, TrendingUp } from 'lucide-react';
 import ExpenseTracker from '../pages/ExpenseTracker';
 import WealthDashboard from '../pages/WealthDashboard';
-import Northstar from '../pages/Northstar';
 
 const ExpenseTrackerHub = ({ isOpen, onClose, user }) => {
-  const [activeTab, setActiveTab] = useState('tracker'); // 'tracker', 'wealth', 'goals'
+  const [activeTab, setActiveTab] = useState('tracker'); // 'tracker', 'wealth'
 
   const tabs = [
     { id: 'tracker', label: 'Expense Tracker', icon: Receipt },
-    { id: 'wealth', label: 'Wealth Dashboard', icon: TrendingUp },
-    { id: 'goals', label: 'Financial Goals', icon: Target }
+    { id: 'wealth', label: 'Wealth Dashboard', icon: TrendingUp }
   ];
 
   if (!isOpen) return null;
@@ -88,16 +86,6 @@ const ExpenseTrackerHub = ({ isOpen, onClose, user }) => {
                   exit={{ opacity: 0, x: -20 }}
                 >
                   <WealthDashboard />
-                </motion.div>
-              )}
-              {activeTab === 'goals' && (
-                <motion.div
-                  key="goals"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                >
-                  <Northstar />
                 </motion.div>
               )}
             </AnimatePresence>

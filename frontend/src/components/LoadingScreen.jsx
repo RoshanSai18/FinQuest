@@ -66,7 +66,7 @@ const LoadingScreen = ({ onComplete }) => {
         className="mb-12"
       >
         <h1 className="text-6xl font-bold gradient-text">FinQuest</h1>
-        <p className="text-center text-gray-400 mt-2">Financial Operating System</p>
+        <p className="text-center text-gray-400 mt-2">Less Waste. More Value</p>
       </motion.div>
 
       {/* Progress Bar */}

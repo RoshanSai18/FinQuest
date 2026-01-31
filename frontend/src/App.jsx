@@ -112,13 +112,20 @@ function App() {
   // Handle logout
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:5000/auth/logout', {
+      const response = await fetch('http://localhost:5000/auth/logout', {
+        method: 'GET',
         credentials: 'include'
       });
-      setUser(null);
-      window.location.href = '/';
+      
+      if (response.ok) {
+        setUser(null);
+        window.location.href = '/';
+      }
     } catch (error) {
       console.error('Logout failed:', error);
+      // Still log out on frontend even if backend fails
+      setUser(null);
+      window.location.href = '/';
     }
   };
 

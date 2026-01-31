@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import axios from 'axios';
 import Tesseract from 'tesseract.js';
 import { parseReceipt } from '../utils/receiptParser';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, AreaChart, Area, XAxis } from 'recharts';
-import { Camera, Loader2, Save, Activity, IndianRupee, Trash2, AlertTriangle, TrendingUp, Layers } from 'lucide-react';
+import { Camera, Loader2, Save, Activity, IndianRupee, Trash2, AlertTriangle, Layers } from 'lucide-react';
 
 // Theme Colors
 const COLORS = { 
-    Needs: '#84cc16',       // Lime Green
+    Needs: '#c8ff00',       // Primary (Lime Green)
     Wants: '#ef4444',       // Red
     Investments: '#3b82f6', // Blue
     Debt: '#f59e0b'         // Orange
@@ -54,7 +55,7 @@ const ExpenseTracker = () => {
         try {
             await axios.delete(`http://localhost:5000/api/expenses/${id}`, { withCredentials: true });
             fetchData();
-        } catch (err) {
+        } catch {
             alert("Failed to delete");
         }
     };
@@ -75,7 +76,7 @@ const ExpenseTracker = () => {
                 date: date || prev.date,
                 title: "Scanned Receipt"
             }));
-        } catch (err) {
+        } catch {
             alert("Scan Failed.");
         }
         setScanning(false);
@@ -99,7 +100,7 @@ const ExpenseTracker = () => {
                 expectedReturn: '',
                 date: form.date 
             });
-        } catch (err) {
+        } catch {
             alert("Error Saving");
         }
         setLoading(false);
@@ -110,184 +111,265 @@ const ExpenseTracker = () => {
     const getTotalByType = (type) => getExpensesByType(type).reduce((acc, curr) => acc + curr.amount, 0);
 
     return (
-        <div className="min-h-screen bg-gray-950 text-gray-100 p-4 md:p-8 font-sans relative overflow-x-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-[#0B0C10] via-gray-950 to-[#0B0C10] text-gray-100 p-6 md:p-8 font-sans relative overflow-hidden">
             
-            {/* CSS Animation Injection */}
-            <style>{`
-                @keyframes slideUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-slide-up { animation: slideUp 0.6s ease-out forwards; }
-                .delay-100 { animation-delay: 0.1s; }
-                .delay-200 { animation-delay: 0.2s; }
-                .delay-300 { animation-delay: 0.3s; }
-                .delay-400 { animation-delay: 0.4s; }
-            `}</style>
-
-            {/* --- BACKGROUND ANIMATIONS --- */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none fixed">
-                <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-lime-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            {/* Animated Background Effects */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <motion.div 
+                    animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: [0.05, 0.1, 0.05],
+                        rotate: [0, 90, 0]
+                    }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl"
+                />
+                <motion.div 
+                    animate={{ 
+                        scale: [1.2, 1, 1.2],
+                        opacity: [0.05, 0.08, 0.05],
+                        rotate: [90, 0, 90]
+                    }}
+                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                    className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-primary/5 to-transparent rounded-full blur-3xl"
+                />
             </div>
 
             <div className="max-w-7xl mx-auto relative z-10 space-y-8">
                 
                 {/* TOP SECTION: GRID */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* LEFT COLUMN: Input & List */}
                     <div className="space-y-6">
                         {/* INPUT CARD */}
-                        <div className="bg-gray-900 p-6 rounded-2xl shadow-2xl border border-gray-800 relative overflow-hidden backdrop-blur-sm bg-opacity-80 animate-slide-up">
-                            <h2 className="text-2xl font-black mb-6 flex items-center gap-2 uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-emerald-600">
-                                <Camera className="text-lime-400 w-6 h-6" /> Transaction Terminal
-                            </h2>
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="bg-gray-900/80 backdrop-blur-xl p-6 rounded-2xl shadow-2xl border border-gray-800/50 relative overflow-hidden group"
+                        >
+                            {/* Glow effect on hover */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                             
-                            <div className="relative mb-6 group">
-                                <input 
-                                    type="file" 
-                                    onChange={handleScan}
-                                    accept="image/*"
-                                    className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-lime-500/10 file:text-lime-400 hover:file:bg-lime-500/20 transition-all cursor-pointer border border-dashed border-gray-700 rounded-xl p-4 group-hover:border-lime-500/50"
-                                />
-                                {scanning && <span className="absolute right-4 top-5 flex items-center gap-1 text-sm text-lime-400 animate-pulse"><Loader2 className="w-4 h-4 animate-spin"/> AI Analyzing...</span>}
-                            </div>
-
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <input 
-                                    placeholder="Expense Title (e.g. Starbucks)" 
-                                    className="w-full p-3 bg-gray-800 rounded-xl border border-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-lime-500 focus:border-transparent transition-all outline-none"
-                                    value={form.title}
-                                    onChange={e => setForm({...form, title: e.target.value})}
-                                    required
-                                />
+                            <div className="relative z-10">
+                                <h2 className="text-2xl font-black mb-6 flex items-center gap-3 uppercase tracking-tight text-white">
+                                    <motion.div
+                                        animate={{ rotate: [0, 10, 0] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                    >
+                                        <Camera className="text-primary w-6 h-6" />
+                                    </motion.div>
+                                    Transaction Terminal
+                                </h2>
                                 
-                                <div className="flex gap-4">
-                                    <div className="relative w-1/2">
-                                        <IndianRupee className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
-                                        <input 
-                                            type="number" 
-                                            placeholder="0.00" 
-                                            className="w-full p-3 pl-9 bg-gray-800 rounded-xl border border-gray-700 text-white font-mono font-bold focus:ring-2 focus:ring-lime-500 outline-none"
-                                            value={form.amount}
-                                            onChange={e => setForm({...form, amount: e.target.value})}
-                                            required
-                                        />
-                                    </div>
+                                <motion.div 
+                                    whileHover={{ scale: 1.01 }}
+                                    className="relative mb-6 group/upload"
+                                >
                                     <input 
-                                        type="date" 
-                                        className="w-1/2 p-3 bg-gray-800 rounded-xl border border-gray-700 text-white focus:ring-2 focus:ring-lime-500 outline-none"
-                                        value={form.date}
-                                        onChange={e => setForm({...form, date: e.target.value})}
+                                        type="file" 
+                                        onChange={handleScan}
+                                        accept="image/*"
+                                        className="w-full text-sm text-gray-400 file:mr-4 file:py-3 file:px-5 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer border-2 border-dashed border-gray-700 hover:border-primary/50 rounded-xl p-4"
                                     />
-                                </div>
-
-                                {/* CLASSIFICATION BUTTONS */}
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                    {['Needs', 'Wants', 'Investments', 'Debt'].map(type => (
-                                        <button
-                                            key={type}
-                                            type="button"
-                                            onClick={() => setForm({...form, classification: type})}
-                                            className={`p-2 rounded-lg text-sm font-bold transition-all border ${
-                                                form.classification === type 
-                                                ? 'bg-lime-500 text-black border-lime-500 shadow-[0_0_15px_rgba(132,204,22,0.4)] transform scale-105' 
-                                                : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-500 hover:text-white'
-                                            }`}
+                                    {scanning && (
+                                        <motion.span 
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="absolute right-4 top-5 flex items-center gap-2 text-sm text-primary"
                                         >
-                                            {type}
-                                        </button>
-                                    ))}
-                                </div>
+                                            <Loader2 className="w-4 h-4 animate-spin"/>
+                                            <span className="animate-pulse">AI Analyzing...</span>
+                                        </motion.span>
+                                    )}
+                                </motion.div>
 
-                                {/* --- DYNAMIC FIELDS BASED ON SELECTION --- */}
-                                
-                                {/* 1. INVESTMENTS: Show Asset Class & Return */}
-                                {form.classification === 'Investments' && (
-                                    <div className="grid grid-cols-2 gap-4 bg-gray-800/50 p-3 rounded-xl border border-blue-500/30 animate-slide-up">
-                                        <select 
-                                            className="w-full p-2 bg-gray-900 rounded-lg text-sm text-white border border-gray-700 outline-none focus:border-blue-500"
-                                            value={form.subCategory}
-                                            onChange={e => setForm({...form, subCategory: e.target.value})}
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <motion.input 
+                                        whileFocus={{ scale: 1.01, borderColor: 'rgb(200, 255, 0)' }}
+                                        placeholder="Expense Title (e.g. Starbucks)" 
+                                        className="w-full p-4 bg-gray-800/50 backdrop-blur rounded-xl border-2 border-gray-700 text-white placeholder-gray-500 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all outline-none"
+                                        value={form.title}
+                                        onChange={e => setForm({...form, title: e.target.value})}
+                                        required
+                                    />
+                                    
+                                    <div className="flex gap-4">
+                                        <motion.div 
+                                            whileFocus={{ scale: 1.01 }}
+                                            className="relative w-1/2"
                                         >
-                                            <option value="">Select Asset Type</option>
-                                            <option value="Mutual Funds">Mutual Funds</option>
-                                            <option value="Stocks">Stocks</option>
-                                            <option value="Gold">Gold / Silver</option>
-                                            <option value="Real Estate">Real Estate</option>
-                                            <option value="Crypto">Crypto</option>
-                                            <option value="FD">Fixed Deposit</option>
-                                        </select>
-                                        <input 
-                                            type="number" 
-                                            placeholder="Exp. Return %" 
-                                            className="w-full p-2 bg-gray-900 rounded-lg text-sm text-white border border-gray-700 outline-none focus:border-blue-500"
-                                            value={form.expectedReturn}
-                                            onChange={e => setForm({...form, expectedReturn: e.target.value})}
+                                            <IndianRupee className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+                                            <input 
+                                                type="number" 
+                                                placeholder="0.00" 
+                                                className="w-full p-4 pl-11 bg-gray-800/50 backdrop-blur rounded-xl border-2 border-gray-700 text-white font-mono font-bold focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
+                                                value={form.amount}
+                                                onChange={e => setForm({...form, amount: e.target.value})}
+                                                required
+                                            />
+                                        </motion.div>
+                                        <motion.input 
+                                            whileFocus={{ scale: 1.01 }}
+                                            type="date" 
+                                            className="w-1/2 p-4 bg-gray-800/50 backdrop-blur rounded-xl border-2 border-gray-700 text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
+                                            value={form.date}
+                                            onChange={e => setForm({...form, date: e.target.value})}
                                         />
                                     </div>
-                                )}
 
-                                {/* 2. DEBT: Show Interest Rate */}
-                                {form.classification === 'Debt' && (
-                                    <div className="bg-gray-800/50 p-3 rounded-xl border border-orange-500/30 animate-slide-up">
-                                        <label className="text-xs text-orange-400 font-bold uppercase mb-1 block">Annual Interest Rate (%)</label>
-                                        <input 
-                                            type="number" 
-                                            placeholder="e.g. 12%" 
-                                            className="w-full p-2 bg-gray-900 rounded-lg text-sm text-white border border-gray-700 outline-none focus:border-orange-500"
-                                            value={form.interestRate}
-                                            onChange={e => setForm({...form, interestRate: e.target.value})}
-                                        />
+                                    {/* CLASSIFICATION BUTTONS */}
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        {['Needs', 'Wants', 'Investments', 'Debt'].map(type => (
+                                            <motion.button
+                                                key={type}
+                                                type="button"
+                                                whileHover={{ scale: 1.05, y: -2 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => setForm({...form, classification: type})}
+                                                className={`p-3 rounded-xl text-sm font-bold transition-all border-2 ${
+                                                    form.classification === type 
+                                                    ? 'bg-primary text-black border-primary shadow-[0_0_20px_rgba(200,255,0,0.4)]' 
+                                                    : 'bg-gray-800/50 text-gray-400 border-gray-700 hover:border-gray-500 hover:text-white'
+                                                }`}
+                                            >
+                                                {type}
+                                            </motion.button>
+                                        ))}
                                     </div>
-                                )}
 
-                                <button disabled={loading} className="w-full bg-gradient-to-r from-lime-400 to-lime-600 hover:from-lime-500 hover:to-lime-700 text-black font-black uppercase tracking-wider p-4 rounded-xl flex items-center justify-center gap-2 transition-all transform active:scale-95 shadow-lg shadow-lime-500/20">
-                                    {loading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />}
-                                    Add to Ledger
-                                </button>
-                            </form>
-                        </div>
+                                    {/* DYNAMIC FIELDS */}
+                                    {form.classification === 'Investments' && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="grid grid-cols-2 gap-4 bg-blue-500/10 p-4 rounded-xl border-2 border-blue-500/30"
+                                        >
+                                            <select 
+                                                className="w-full p-3 bg-gray-900 rounded-lg text-sm text-white border border-gray-700 outline-none focus:border-blue-500"
+                                                value={form.subCategory}
+                                                onChange={e => setForm({...form, subCategory: e.target.value})}
+                                            >
+                                                <option value="">Select Asset Type</option>
+                                                <option value="Mutual Funds">Mutual Funds</option>
+                                                <option value="Stocks">Stocks</option>
+                                                <option value="Gold">Gold / Silver</option>
+                                                <option value="Real Estate">Real Estate</option>
+                                                <option value="Crypto">Crypto</option>
+                                                <option value="FD">Fixed Deposit</option>
+                                            </select>
+                                            <input 
+                                                type="number" 
+                                                placeholder="Exp. Return %" 
+                                                className="w-full p-3 bg-gray-900 rounded-lg text-sm text-white border border-gray-700 outline-none focus:border-blue-500"
+                                                value={form.expectedReturn}
+                                                onChange={e => setForm({...form, expectedReturn: e.target.value})}
+                                            />
+                                        </motion.div>
+                                    )}
+
+                                    {form.classification === 'Debt' && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="bg-orange-500/10 p-4 rounded-xl border-2 border-orange-500/30"
+                                        >
+                                            <label className="text-xs text-orange-400 font-bold uppercase mb-2 block">Annual Interest Rate (%)</label>
+                                            <input 
+                                                type="number" 
+                                                placeholder="e.g. 12%" 
+                                                className="w-full p-3 bg-gray-900 rounded-lg text-sm text-white border border-gray-700 outline-none focus:border-orange-500"
+                                                value={form.interestRate}
+                                                onChange={e => setForm({...form, interestRate: e.target.value})}
+                                            />
+                                        </motion.div>
+                                    )}
+
+                                    <motion.button 
+                                        whileHover={{ scale: 1.02, boxShadow: '0 0 30px rgba(200, 255, 0, 0.3)' }}
+                                        whileTap={{ scale: 0.98 }}
+                                        disabled={loading} 
+                                        className="w-full bg-gradient-to-r from-primary to-green-500 hover:from-green-500 hover:to-primary text-black font-black uppercase tracking-wider p-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {loading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />}
+                                        Add to Ledger
+                                    </motion.button>
+                                </form>
+                            </div>
+                        </motion.div>
 
                         {/* LIVE LEDGER CARD */}
-                        <div className="bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-800 backdrop-blur-sm bg-opacity-80 animate-slide-up delay-100">
-                            <h3 className="text-xl font-black mb-4 flex items-center gap-2 uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-                                <Layers className="text-purple-400 w-5 h-5" /> All Transactions
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                            className="bg-gray-900/80 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-gray-800/50 group hover:border-gray-700 transition-all"
+                        >
+                            <h3 className="text-xl font-black mb-5 flex items-center gap-3 uppercase tracking-tight text-white">
+                                <Layers className="text-gray-400 w-5 h-5" />
+                                Transaction History
                             </h3>
-                            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-900 [&::-webkit-scrollbar-thumb]:bg-gray-700 [&::-webkit-scrollbar-thumb]:rounded-full">
-                                {expenses.map(exp => (
-                                    <div key={exp._id} className="flex justify-between items-center p-3 hover:bg-gray-800/50 rounded-lg transition-colors border border-transparent hover:border-gray-700 group relative">
+                            <div className="space-y-2 max-h-[350px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-900 [&::-webkit-scrollbar-thumb]:bg-gray-700 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-600">
+                                {expenses.map((exp, index) => (
+                                    <motion.div 
+                                        key={exp._id}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: index * 0.05 }}
+                                        whileHover={{ scale: 1.02, x: 4 }}
+                                        className="flex justify-between items-center p-4 bg-gray-800/50 hover:bg-gray-800 rounded-xl transition-all border border-transparent hover:border-gray-700 group/item cursor-pointer"
+                                    >
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-1 h-8 rounded-full shadow-[0_0_8px]`} style={{backgroundColor: COLORS[exp.classification], boxShadow: `0 0 10px ${COLORS[exp.classification]}`}}></div>
+                                            <motion.div 
+                                                animate={{ boxShadow: [`0 0 5px ${COLORS[exp.classification]}`, `0 0 15px ${COLORS[exp.classification]}`, `0 0 5px ${COLORS[exp.classification]}`] }}
+                                                transition={{ duration: 2, repeat: Infinity }}
+                                                className="w-1 h-10 rounded-full" 
+                                                style={{backgroundColor: COLORS[exp.classification]}}
+                                            />
                                             <div>
-                                                <p className="font-bold text-gray-200 group-hover:text-white transition-colors">{exp.title}</p>
+                                                <p className="font-bold text-gray-200 group-hover/item:text-white transition-colors">{exp.title}</p>
                                                 <p className="text-xs text-gray-500">{new Date(exp.date).toLocaleDateString()}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4">
-                                            <span className="font-mono font-bold text-lime-400">₹{exp.amount}</span>
-                                            <button 
+                                            <span className="font-mono font-bold text-primary">₹{exp.amount}</span>
+                                            <motion.button 
+                                                whileHover={{ scale: 1.2, rotate: 180 }}
+                                                whileTap={{ scale: 0.9 }}
                                                 onClick={() => handleDelete(exp._id)}
-                                                className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-500 transition-all"
+                                                className="opacity-0 group-hover/item:opacity-100 text-gray-500 hover:text-red-500 transition-all"
                                                 title="Delete Transaction"
                                             >
                                                 <Trash2 className="w-4 h-4" />
-                                            </button>
+                                            </motion.button>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
 
                     {/* RIGHT COLUMN: Analytics */}
                     <div className="space-y-6">
                         {/* SURVIVAL INDEX */}
-                        <div className="bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-800 relative backdrop-blur-sm bg-opacity-80 animate-slide-up delay-200">
-                            <h2 className="text-xl font-black mb-6 flex items-center gap-2 uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
-                                <AlertTriangle className="text-orange-500 w-5 h-5" /> Survival Index
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                            className="bg-gray-900/80 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-gray-800/50 relative group hover:border-gray-700 transition-all"
+                        >
+                            <h2 className="text-xl font-black mb-6 flex items-center gap-3 uppercase tracking-tight text-white">
+                                <AlertTriangle className="text-gray-400 w-5 h-5" />
+                                Survival Index
                             </h2>
-                            <div style={{ width: '100%', height: 300 }}>
+                            <motion.div 
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ delay: 0.5, duration: 0.5 }}
+                                style={{ width: '100%', height: 300 }}
+                            >
                                 <ResponsiveContainer>
                                     <PieChart>
                                         <Pie 
@@ -299,6 +381,8 @@ const ExpenseTracker = () => {
                                             outerRadius={110}
                                             paddingAngle={5}
                                             stroke="none"
+                                            animationBegin={0}
+                                            animationDuration={1000}
                                         >
                                             {analytics.breakdown.map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[entry._id]} />
@@ -311,29 +395,51 @@ const ExpenseTracker = () => {
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>
-                            </div>
-                            <div className="flex justify-center gap-4 mt-2">
-                                {Object.keys(COLORS).map(key => (
-                                    <div key={key} className="flex items-center gap-2 text-xs text-gray-400 font-bold bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
-                                        <div className="w-2 h-2 rounded-full" style={{background: COLORS[key]}}></div>
+                            </motion.div>
+                            <div className="flex justify-center gap-3 mt-4 flex-wrap">
+                                {Object.keys(COLORS).map((key, index) => (
+                                    <motion.div 
+                                        key={key}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.6 + index * 0.1 }}
+                                        className="flex items-center gap-2 text-xs text-gray-400 font-bold bg-gray-800/50 px-4 py-2 rounded-full border border-gray-700 hover:border-gray-600 transition-all"
+                                    >
+                                        <motion.div 
+                                            animate={{ scale: [1, 1.2, 1] }}
+                                            transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                                            className="w-2.5 h-2.5 rounded-full" 
+                                            style={{background: COLORS[key]}}
+                                        />
                                         {key}
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* CASH VELOCITY */}
-                        <div className="bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-800 backdrop-blur-sm bg-opacity-80 animate-slide-up delay-300">
-                             <h2 className="text-xl font-black mb-6 flex items-center gap-2 uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">
-                                <Activity className="text-blue-500 w-5 h-5" /> Cash Velocity
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.3 }}
+                            className="bg-gray-900/80 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-gray-800/50 group hover:border-gray-700 transition-all"
+                        >
+                            <h2 className="text-xl font-black mb-6 flex items-center gap-3 uppercase tracking-tight text-white">
+                                <Activity className="text-gray-400 w-5 h-5" />
+                                Cash Velocity
                             </h2>
-                            <div style={{ width: '100%', height: 350 }}>
+                            <motion.div 
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ delay: 0.6, duration: 0.5 }}
+                                style={{ width: '100%', height: 350 }}
+                            >
                                 <ResponsiveContainer>
                                     <AreaChart data={analytics.dailyTrend}>
                                         <defs>
                                             <linearGradient id="colorBurn" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#84cc16" stopOpacity={0.3}/>
-                                                <stop offset="95%" stopColor="#84cc16" stopOpacity={0}/>
+                                                <stop offset="5%" stopColor="#c8ff00" stopOpacity={0.4}/>
+                                                <stop offset="95%" stopColor="#c8ff00" stopOpacity={0}/>
                                             </linearGradient>
                                         </defs>
                                         <XAxis 
@@ -352,63 +458,96 @@ const ExpenseTracker = () => {
                                             labelFormatter={(label) => new Date(label).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                                             formatter={(value) => `₹${value}`}
                                         />
-                                        <Area type="monotone" dataKey="dailyTotal" stroke="#84cc16" strokeWidth={3} fillOpacity={1} fill="url(#colorBurn)" />
+                                        <Area 
+                                            type="monotone" 
+                                            dataKey="dailyTotal" 
+                                            stroke="#c8ff00" 
+                                            strokeWidth={3} 
+                                            fillOpacity={1} 
+                                            fill="url(#colorBurn)"
+                                            animationBegin={0}
+                                            animationDuration={1500}
+                                        />
                                     </AreaChart>
                                 </ResponsiveContainer>
-                            </div>
-                        </div>
+                            </motion.div>
+                        </motion.div>
                     </div>
                 </div>
 
-                {/* --- NEW SECTION: GLOWING EDGE CATEGORIES --- */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pb-12">
+                {/* CATEGORY CARDS SECTION */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-8">
                     {['Needs', 'Wants', 'Investments', 'Debt'].map((type, index) => (
-                        <div 
-                            key={type} 
-                            // Base styles
-                            className="bg-gray-900/50 rounded-2xl border flex flex-col h-[450px] transition-all duration-300 hover:-translate-y-2 animate-slide-up backdrop-blur-sm"
-                            // DYNAMIC GLOWING EDGES HERE
+                        <motion.div 
+                            key={type}
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+                            whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                            className="bg-gray-900/80 backdrop-blur-xl rounded-2xl border-2 flex flex-col h-[450px] transition-all duration-300 group/card"
                             style={{ 
-                                animationDelay: `${400 + (index * 100)}ms`,
-                                borderColor: COLORS[type],                 // The Edge Color
-                                boxShadow: `0 0 15px ${COLORS[type]}30`    // The Edge "Shine" (30% opacity)
+                                borderColor: COLORS[type],
+                                boxShadow: `0 0 20px ${COLORS[type]}20`
                             }}
                         >
-                            {/* Simple Clean Header */}
+                            {/* Header */}
                             <div className="p-5 border-b border-gray-800">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h3 className="font-black uppercase tracking-[0.2em] text-sm" style={{ color: COLORS[type] }}>
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="font-black uppercase tracking-widest text-sm" style={{ color: COLORS[type] }}>
                                         {type}
                                     </h3>
-                                    <Activity className="w-4 h-4 opacity-50" style={{ color: COLORS[type] }} />
+                                    <motion.div
+                                        animate={{ rotate: [0, 360] }}
+                                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                    >
+                                        <Activity className="w-4 h-4" style={{ color: COLORS[type], opacity: 0.5 }} />
+                                    </motion.div>
                                 </div>
-                                <p className="text-3xl font-black text-white flex items-baseline gap-1">
+                                <motion.p 
+                                    key={getTotalByType(type)}
+                                    initial={{ scale: 0.8, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    className="text-3xl font-black text-white flex items-baseline gap-2"
+                                >
                                     <span className="text-base text-gray-500 font-medium">₹</span>
                                     {getTotalByType(type).toLocaleString()}
-                                </p>
+                                </motion.p>
                             </div>
 
                             {/* Scrollable List */}
-                            <div className="flex-1 overflow-y-auto p-4 space-y-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-800 [&::-webkit-scrollbar-thumb]:rounded-full">
+                            <div className="flex-1 overflow-y-auto p-4 space-y-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-800 [&::-webkit-scrollbar-thumb]:rounded-full">
                                 {getExpensesByType(type).length === 0 ? (
                                     <div className="h-full flex flex-col items-center justify-center text-gray-700 opacity-50">
-                                        <Layers className="w-8 h-8 mb-2" />
-                                        <p className="text-xs font-bold uppercase tracking-widest">Empty</p>
+                                        <motion.div
+                                            animate={{ y: [0, -10, 0] }}
+                                            transition={{ duration: 2, repeat: Infinity }}
+                                        >
+                                            <Layers className="w-10 h-10 mb-3" />
+                                        </motion.div>
+                                        <p className="text-xs font-bold uppercase tracking-widest">No Transactions</p>
                                     </div>
                                 ) : (
                                     getExpensesByType(type).map((exp, i) => (
-                                        <div 
-                                            key={exp._id} 
-                                            className="p-3 rounded-xl bg-gray-950 border border-gray-800/50 hover:border-gray-600 transition-all group"
+                                        <motion.div 
+                                            key={exp._id}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: i * 0.05 }}
+                                            whileHover={{ scale: 1.03, x: 5 }}
+                                            className="p-3 rounded-xl bg-gray-950/50 border border-gray-800/50 hover:border-gray-700 transition-all group/expense"
                                         >
                                             <div className="flex justify-between items-start mb-1">
-                                                <span className="font-bold text-gray-300 text-sm line-clamp-1">{exp.title}</span>
-                                                <button 
+                                                <span className="font-bold text-gray-300 text-sm line-clamp-1 group-hover/expense:text-white transition-colors">
+                                                    {exp.title}
+                                                </span>
+                                                <motion.button 
+                                                    whileHover={{ scale: 1.2, rotate: 90 }}
+                                                    whileTap={{ scale: 0.9 }}
                                                     onClick={() => handleDelete(exp._id)}
-                                                    className="text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                                    className="text-gray-600 hover:text-red-500 opacity-0 group-hover/expense:opacity-100 transition-all"
                                                 >
                                                     <Trash2 className="w-3.5 h-3.5" />
-                                                </button>
+                                                </motion.button>
                                             </div>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-[10px] text-gray-500 font-mono">
@@ -418,11 +557,11 @@ const ExpenseTracker = () => {
                                                     ₹{exp.amount}
                                                 </span>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     ))
                                 )}
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
 
